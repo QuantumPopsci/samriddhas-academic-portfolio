@@ -20,11 +20,12 @@ const blogPosts = [
   { title: "Quantum Decoherence", summary: "Exploring the paradigm of Quantum to Classical Transition, this paper is a pedagogical overview of Decoherence in Quantum Systems", link: "https://arxiv.org/abs/1911.06282", tags: ["Quantum Decoherence", "Quantum Master Equations", "Quantum Information"] }
 ];
 
+
 const galleryItems = [
-    { src: "https://placehold.co/600x400/1e293b/94a3b8?text=Topological+Magnon+Bands", caption: "Topologically gapped magnon bands with DMI." },
-    { src: "https://placehold.co/600x400/1e293b/94a3b8?text=Spin+Wave+Dispersion", caption: "Dispersion of a 1D Ferromagnetic Spin Wave." },
-    { src: "https://placehold.co/600x400/1e293b/94a3b8?text=SSH+Model+Plot", caption: "Dispersion of the SSH Model (Topological Phase)." },
-    { src: "https://placehold.co/600x400/1e293b/94a3b8?text=Quantum+Circuit", caption: "Diagram of a Quantum Computing Circuit." },
+    { src: "/magnon-bands.png", caption: "Topologically gapped magnon bands with DMI." },
+    { src: "/spin-wave.png", caption: "Dispersion of a 1D Ferromagnetic Spin Wave." },
+    { src: "/ssh-model.png", caption: "Dispersion of the SSH Model (Topological Phase)." },
+    { src: "/quantum-circuit.jpg", caption: "Diagram of a Quantum Computing Circuit." },
 ];
 
 // --- Thematic SVG Icons ---
@@ -50,9 +51,7 @@ const QubitIcon = () => (
     </svg>
 );
 
-
-// --- Physics Simulation Components ---
-
+// --- Physics Simulation Component ---
 const WavePacketSimFinal = ({ isDarkMode }) => {
     // Parameters
     const N = 32; // Grid size. Keep this <= 32 for performance. 50 is too slow for web.
@@ -74,7 +73,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
     const animationFrameRef = React.useRef();
 
     // --- Core FFT and Complex Number Functions ---
-    // These are required to replicate the SciPy/NumPy logic in JavaScript.
     const complex = (re, im) => ({ re, im });
     const cadd = (a, b) => complex(a.re + b.re, a.im + b.im);
     const csub = (a, b) => complex(a.re - b.re, a.im - b.im);
@@ -86,7 +84,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
     const conj = (a) => complex(a.re, -a.im);
     const mag2 = (a) => a.re * a.re + a.im * a.im;
 
-    // 1D Cooley-Tukey FFT, adapted for complex objects
     const fft = (x) => {
         const n = x.length;
         if (n <= 1) return x;
@@ -101,7 +98,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
         return result;
     };
     
-    // 1D Inverse FFT
     const ifft = (x) => {
         const n = x.length;
         const x_conj = x.map(c => conj(c));
@@ -109,7 +105,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
         return y_conj.map(c => complex(c.re / n, -c.im / n));
     };
 
-    // 2D Inverse FFT by applying 1D IFFT to rows, then columns
     const ifft2d = (matrix) => {
         const rows = matrix.map(row => ifft(row));
         const transposed = rows[0].map((_, colIndex) => rows.map(row => row[colIndex]));
@@ -118,7 +113,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
         return final_transposed;
     };
     
-    // fftshift for 2D matrix
     const fftshift2d = (matrix) => {
         const rows = matrix.length;
         const cols = matrix[0].length;
@@ -134,19 +128,12 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
     };
 
 
-    // --- Main Simulation Logic ---
-    // This effect runs the full simulation calculation. It's heavy.
     useEffect(() => {
         setIsLoading(true);
-        // Run simulation in a worker-like pattern to avoid freezing UI
         setTimeout(() => {
-            // 1. Setup k-space grid
             const kx_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
             const ky_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
-            const KX = Array.from({ length: N }, (_, i) => Array(N).fill(kx_vals[i]));
-            const KY = Array.from({ length: N }, (_, j) => Array.from({ length: N }, (_, i) => ky_vals[i]));
 
-            // 2. Calculate Hamiltonian, eigenvalues, and eigenvectors
             const eigvals = Array.from({ length: N }, () => Array.from({ length: N }, () => [0, 0]));
             const eigvecs_lower_band = Array.from({ length: N }, () => Array.from({ length: N }, () => [complex(0, 0), complex(0, 0)]));
             const delta = [[0.0, 1.0], [-Math.sqrt(3)/2, -0.5], [Math.sqrt(3)/2, -0.5]];
@@ -156,14 +143,13 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
                     let d12 = complex(0, 0);
                     for (const vec of delta) {
                         const phase = complex(0, kx_vals[i] * vec[0] + ky_vals[j] * vec[1]);
-                        const term1 = cmul(complex(-1, 0), cexp(phase)); // -J*exp(i*phase) with J=1
-                        const term2 = cmul(complex(0, D), cexp(phase)); // i*D*exp(i*phase)
+                        const term1 = cmul(complex(-1, 0), cexp(phase));
+                        const term2 = cmul(complex(0, D), cexp(phase));
                         d12 = cadd(d12, cadd(term1, term2));
                     }
                     const d_mag = Math.sqrt(mag2(d12));
                     eigvals[i][j] = [-d_mag, d_mag];
                     
-                    // Eigenvector for lower band (eval = -d_mag): [d12, d_mag] (unnormalized)
                     const v0 = d12;
                     const v1 = complex(d_mag, 0);
                     const norm = Math.sqrt(mag2(v0) + mag2(v1));
@@ -171,7 +157,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
                 }
             }
 
-            // 3. Initial Gaussian wavepacket in k-space
             const Gk = Array(N).fill(0).map(() => Array(N).fill(0));
             let Gk_norm_sq = 0;
             for (let i = 0; i < N; i++) {
@@ -183,7 +168,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
             }
             const Gk_norm = Math.sqrt(Gk_norm_sq);
 
-            // 4. Project onto lower band to get initial state psi_k
             const psi_k = Array.from({ length: N }, (_, i) =>
                 Array.from({ length: N }, (_, j) => {
                     const g_val = Gk[i][j] / Gk_norm;
@@ -191,7 +175,6 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
                 })
             );
             
-            // 5. Time evolution calculation
             const t = frame * timeScale;
             const psi_k_t = Array.from({ length: N }, () => Array.from({ length: N }, () => [complex(0,0), complex(0,0)]));
             for (let i = 0; i < N; i++) {
@@ -201,23 +184,19 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
                     psi_k_t[i][j][1] = cmul(phase, psi_k[i][j][1]);
                 }
             }
-
-            // 6. Inverse Fourier Transform to get real-space wavefunction
-            // We transform the first component of the spinor
+            
             const psi_k_t_component0 = psi_k_t.map(row => row.map(spinor => spinor[0]));
             const psi_rt_component0 = ifft2d(psi_k_t_component0);
 
-            // 7. Calculate probability density and apply fftshift
             const probability_density = fftshift2d(psi_rt_component0.map(row => row.map(c => mag2(c))));
             
             setPlotData(probability_density);
             setIsLoading(false);
-        }, 20); // Small timeout to allow UI to update to "Loading..."
+        }, 20);
 
-    }, [frame, D, kx0, ky0, sigma, timeScale]); // Re-run the whole simulation if params change
+    }, [frame, D, kx0, ky0, sigma, timeScale]);
 
 
-    // Animation loop
     useEffect(() => {
         if (isRunning) {
             animationFrameRef.current = requestAnimationFrame(() => {
@@ -251,7 +230,7 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
                                 type: 'surface',
                                 colorscale: 'Viridis',
                                 cmin: 0,
-                                cmax: np.max(plotData) * 0.8, // Adjust color scale for better visibility
+                                cmax: plotData ? Math.max(...plotData.flat()) * 0.8 : 1,
                             }]}
                             layout={{
                                 title: `|ψ(r, t)|² at t = ${(frame * timeScale).toFixed(0)}`,
@@ -286,87 +265,7 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
         </div>
     );
 };
-const SSHModelSim = ({ isDarkMode }) => {
-  const [t1, setT1] = useState(1.0);
-  const [t2, setT2] = useState(1.5);
-  const dispersionData = useMemo(() => {
-    const k_values = Array.from({ length: 201 }, (_, i) => (i - 100) * Math.PI / 100);
-    const E_plus = k_values.map(k => Math.sqrt(t1**2 + t2**2 + 2 * t1 * t2 * Math.cos(k)));
-    const E_minus = k_values.map(k => -Math.sqrt(t1**2 + t2**2 + 2 * t1 * t2 * Math.cos(k)));
-    return [{ x: k_values, y: E_plus, type: 'scatter', mode: 'lines', name: 'Upper Band', line: { color: '#3b82f6', width: 3 } }, { x: k_values, y: E_minus, type: 'scatter', mode: 'lines', name: 'Lower Band', line: { color: '#ef4444', width: 3 } }];
-  }, [t1, t2]);
-  const isTopological = Math.abs(t2) > Math.abs(t1);
-  const bandGap = 2 * Math.abs(t1 - t2);
 
-  return (
-    <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
-      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">1. SSH Model (Topological Insulator)</h3>
-      <p className="text-slate-600 dark:text-slate-300 mb-6">A 1D toy model for a topological insulator, describing a chain of atoms with alternating hopping amplitudes `t₁` and `t₂`.</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="space-y-4">
-          <div><label htmlFor="t1_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Intracell Hopping `t₁`: {t1.toFixed(2)}</label><input id="t1_slider" type="range" min="0.1" max="2.0" step="0.05" value={t1} onChange={(e) => setT1(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
-          <div><label htmlFor="t2_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Intercell Hopping `t₂`: {t2.toFixed(2)}</label><input id="t2_slider" type="range" min="0.1" max="2.0" step="0.05" value={t2} onChange={(e) => setT2(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
-          <div className={`p-4 rounded-lg transition-colors duration-300 ${isTopological ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}><h4 className="font-bold text-lg text-slate-800 dark:text-white">System Phase: {isTopological ? 'Topological' : 'Trivial'}</h4><p className="text-sm text-slate-600 dark:text-slate-300">{isTopological ? 'Hosts protected edge states.' : 'A simple band insulator.'}</p><p className="text-sm font-mono mt-2 text-slate-700 dark:text-slate-200">Band Gap: {bandGap.toFixed(3)}</p></div>
-        </div>
-        <div className="bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[300px]"><Plot data={dispersionData} layout={{ title: 'Dispersion Relation E(k)', autosize: true, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font: { color: isDarkMode ? '#cbd5e1' : '#334155' }, xaxis: { title: 'Momentum k', gridcolor: isDarkMode ? '#334155' : '#e2e8f0' }, yaxis: { title: 'Energy E', gridcolor: isDarkMode ? '#334155' : '#e2e8f0' }, legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 } }} useResizeHandler={true} style={{ width: '100%', height: '100%' }} config={{ responsive: true }} /></div>
-      </div>
-    </div>
-  );
-};
-
-const SpinWaveSim = ({ isDarkMode }) => {
-    const [J, setJ] = useState(1.0);
-    const dispersionData = useMemo(() => {
-        const k_values = Array.from({ length: 201 }, (_, i) => (i - 100) * Math.PI / 100);
-        const omega = k_values.map(k => 2 * J * (1 - Math.cos(k)));
-        return [{ x: k_values, y: omega, type: 'scatter', mode: 'lines', name: 'Magnon Energy', line: { color: '#10b981', width: 3 } }];
-    }, [J]);
-
-    return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">2. Ferromagnetic Spin Waves (Magnons)</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-6">The dispersion for magnons in a 1D ferromagnetic chain with exchange coupling `J`. These are the collective excitations of the ordered spin system.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="space-y-4">
-                    <div><label htmlFor="j_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Exchange Coupling `J`: {J.toFixed(2)}</label><input id="j_slider" type="range" min="0.1" max="5.0" step="0.1" value={J} onChange={(e) => setJ(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
-                    <div className="p-4 rounded-lg bg-emerald-100 dark:bg-emerald-900/50"><h4 className="font-bold text-lg text-slate-800 dark:text-white">Magnon Properties</h4><p className="text-sm text-slate-600 dark:text-slate-300">The bandwidth is `4J`. The dispersion is gapless at `k=0`, a consequence of Goldstone's theorem for broken rotational symmetry.</p></div>
-                </div>
-                <div className="bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[300px]"><Plot data={dispersionData} layout={{ title: 'Spin Wave Dispersion ω(k)', autosize: true, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font: { color: isDarkMode ? '#cbd5e1' : '#334155' }, xaxis: { title: 'Momentum k', gridcolor: isDarkMode ? '#334155' : '#e2e8f0' }, yaxis: { title: 'Energy ω', gridcolor: isDarkMode ? '#334155' : '#e2e8f0', range: [0, 4 * 5] }, legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 } }} useResizeHandler={true} style={{ width: '100%', height: '100%' }} config={{ responsive: true }} /></div>
-            </div>
-        </div>
-    );
-};
-
-const TopologicalMagnonSim = ({ isDarkMode }) => {
-    const [D, setD] = useState(0.5); // DMI
-    const [B, setB] = useState(0.3); // Magnetic Field
-
-    const dispersionData = useMemo(() => {
-        const k_values = Array.from({ length: 201 }, (_, i) => (i - 100) * Math.PI / 100);
-        // Energy for 1D model with DMI: E(k) = B + 2J(1-cos(k)) ± 2Dsin(k). Let J=1.
-        const J = 1.0;
-        const E_plus = k_values.map(k => B + 2 * J * (1 - Math.cos(k)) + 2 * D * Math.sin(k));
-        const E_minus = k_values.map(k => B + 2 * J * (1 - Math.cos(k)) - 2 * D * Math.sin(k));
-        return [{ x: k_values, y: E_plus, type: 'scatter', mode: 'lines', name: 'Upper Band', line: { color: '#8b5cf6', width: 3 } }, { x: k_values, y: E_minus, type: 'scatter', mode: 'lines', name: 'Lower Band', line: { color: '#db2777', width: 3 } }];
-    }, [D, B]);
-    
-    const isGapped = D > 0;
-
-    return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">3. Topological Magnon Bands</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-6">A 1D model where Dzyaloshinskii-Moriya Interaction (DMI) `D` breaks inversion symmetry, splitting the magnon bands. An external field `B` sets the baseline energy.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="space-y-4">
-                    <div><label htmlFor="d_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">DMI `D`: {D.toFixed(2)}</label><input id="d_slider" type="range" min="0" max="1.5" step="0.05" value={D} onChange={(e) => setD(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
-                    <div><label htmlFor="b_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Magnetic Field `B`: {B.toFixed(2)}</label><input id="b_slider" type="range" min="0" max="2.0" step="0.05" value={B} onChange={(e) => setB(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
-                    <div className={`p-4 rounded-lg transition-colors duration-300 ${isGapped ? 'bg-purple-100 dark:bg-purple-900/50' : 'bg-gray-100 dark:bg-gray-900/50'}`}><h4 className="font-bold text-lg text-slate-800 dark:text-white">System State: {isGapped ? 'Topologically Non-Trivial' : 'Trivial (No DMI)'}</h4><p className="text-sm text-slate-600 dark:text-slate-300">{isGapped ? 'Asymmetric bands can lead to thermal Hall effect.' : 'Standard ferromagnetic dispersion.'}</p></div>
-                </div>
-                <div className="bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[300px]"><Plot data={dispersionData} layout={{ title: 'Topological Magnon Bands E(k)', autosize: true, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font: { color: isDarkMode ? '#cbd5e1' : '#334155' }, xaxis: { title: 'Momentum k', gridcolor: isDarkMode ? '#334155' : '#e2e8f0' }, yaxis: { title: 'Energy E', gridcolor: isDarkMode ? '#334155' : '#e2e8f0' }, legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 } }} useResizeHandler={true} style={{ width: '100%', height: '100%' }} config={{ responsive: true }} /></div>
-            </div>
-        </div>
-    );
-};
 
 // --- Page Components ---
 
@@ -442,22 +341,16 @@ const CVPage = () => (
 const SimulationsPage = ({ isDarkMode }) => (
     <PageWrapper title="Physics is Fun">
         <p className="text-lg text-slate-700 dark:text-slate-300">
-            This page features interactive simulations of interesting physical models. The 2D wave packet simulation is a direct port of the Python/SciPy code and is computationally intensive.
+            This page features an interactive simulation of a 2D wave packet. It is a direct port of the Python/SciPy code and is computationally intensive. Please be patient during calculations.
         </p>
         <div className="space-y-8">
-            {/* Use the new, accurate simulation component */}
             <WavePacketSimFinal isDarkMode={isDarkMode} />
-            
-            {/* You can add the other, simpler simulations back here if you wish */}
-            <TopologicalMagnonSim isDarkMode={isDarkMode} />
-            <SpinWaveSim isDarkMode={isDarkMode} />
-            <SSHModelSim isDarkMode={isDarkMode} />
         </div>
     </PageWrapper>
 );
 
 const BlogPage = () => (
-    <PageWrapper title="Papers & Articles">
+    <PageWrapper title="Blog & Articles">
         <div className="space-y-8">{blogPosts.map((post, index) => (<div key={index} className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg shadow-md transition-transform hover:scale-[1.02]"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{post.title}</h3><div className="flex flex-wrap gap-2 my-2">{post.tags.map(tag => <span key={tag} className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full">{tag}</span>)}</div><p className="text-slate-600 dark:text-slate-300 my-4">{post.summary}</p><a href={post.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400">Read Paper &rarr;</a></div>))}</div>
     </PageWrapper>
 );
