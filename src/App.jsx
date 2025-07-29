@@ -22,10 +22,10 @@ const blogPosts = [
 
 
 const galleryItems = [
-    { src: "/IISC.png", caption: "Indian Institute of Science, Bengaluru" },
-    { src: "/GROUPS.png", caption: "Who says Physics people do not do Math?" },
-    { src: "/GMRT.png", caption: "GMRT during RAWS December 2023" },
-    { src: "/NCRA.png", caption: "NCRA-TIFR Main Building, Pune" },
+    { src: "/IISC", caption: "Indian Institute of Science, Bengaluru" },
+    { src: "/GROUPS", caption: "Who says Physics people do not do Math?" },
+    { src: "/GMRT", caption: "GMRT during RAWS December 2023" },
+    { src: "/NCRA", caption: "NCRA-TIFR Main Building, Pune" },
 ];
 // --- New Data for Experience and Awards ---
 const experienceData = [
