@@ -5,7 +5,7 @@ import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, 
 // --- Helper Data ---
 const cvData = {
   education: [
-    { degree: "BS-MS Dual Degree, Physics Major", institution: "Indian Institute of Science Education and Research (IISER) Bhopal", period: "2020 - 2025 (Expected)", details: "CGPA: 9.5/10 (equivalent to 3.8/4.0)" },
+    { degree: "BS-MS Dual Degree, Physics Major", institution: "Indian Institute of Science Education and Research (IISER) Bhopal", period: "2020 - 2027 (Expected)", details: "CGPA: 9.5/10 (equivalent to 3.8/4.0)" },
     { degree: "Higher Secondary (XII)", institution: "St. Xavier’s Institution, Panihati", period: "2020", details: "Percentage: 98.75%" },
     { degree: "Secondary (X)", institution: "St. Xavier’s Institution, Panihati", period: "2018", details: "Percentage: 98%" }
   ],
