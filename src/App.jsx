@@ -5,17 +5,19 @@ import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, 
 // --- Helper Data ---
 const cvData = {
   education: [
-    { degree: "BS-MS Dual Degree, Physics Major", institution: "Indian Institute of Science Education and Research (IISER) Bhopal", period: "2020 - 2027 (Expected)", details: "CGPA: 9.5/10 (equivalent to 3.8/4.0)" },
-    { degree: "Higher Secondary (XII)", institution: "St. Xavier’s Institution, Panihati", period: "2020", details: "Percentage: 98.75%" },
-    { degree: "Secondary (X)", institution: "St. Xavier’s Institution, Panihati", period: "2018", details: "Percentage: 98%" }
+    { degree: "BS-MS Dual Degree, Physics Major", institution: "Indian Institute of Science Education and Research (IISER) Bhopal", period: "2022 - 2027 (Expected)", details: "CGPA: 9.5/10 (equivalent to 3.85/4.0)" },
+    { degree: "Higher Secondary (XII)", institution: "St. Xavier’s Institution, Panihati", period: "2022", details: "Percentage: 98.75%" },
+    { degree: "Secondary (X)", institution: "St. Xavier’s Institution, Panihati", period: "2020", details: "Percentage: 98%" }
   ],
   coursework: [ 'Introduction to Quantum Physics', 'Quantum Mechanics I', 'Advanced Quantum Mechanics', 'Statistical Mechanics', 'Numerical Methods in Programming', 'Wave and Optics', 'Electromagnetism', 'Classical Mechanics', 'General Properties of Matter', 'Physics through Computational Thinking', 'Classical Thermodynamics', 'Basic Electronics', 'Introduction to Programming', 'Linear Algebra', 'Complex Variables', 'Probability and Statistics', 'Multivariable Calculus', 'Groups and Symmetry', 'Real Analysis', 'Mathematical Methods for Physicists', 'Basic Physical Chemistry' ]
 };
 
 const blogPosts = [
-  { title: "A Review on Topological Magnons and Their Applications", summary: "Topological magnons, the quantized spin waves in magnetic materials, have emerged as a fascinating area of research. This article reviews the fundamental concepts, material realizations, and potential applications in spintronics and quantum information processing.", link: "https://arxiv.org/abs/2108.11476", tags: ["Topological Magnons", "Spintronics", "Review"] },
-  { title: "Quantum Spin Liquids: A Review", summary: "Quantum spin liquids are exotic states of matter where magnetic moments are highly entangled and fluctuate down to the lowest temperatures, avoiding conventional magnetic order. This review covers theoretical models, experimental signatures, and the search for candidate materials.", link: "https://www.nature.com/articles/nphys4144", tags: ["Quantum Spin Liquids", "Frustrated Magnetism", "Entanglement"] },
-  { title: "Machine Learning for Quantum Matter", summary: "Exploring the intersection of machine learning and condensed matter physics. This article discusses how ML techniques, from neural networks to kernel methods, are being used to classify phases of matter, solve quantum many-body problems, and accelerate materials discovery.", link: "https://arxiv.org/abs/1810.03336", tags: ["Machine Learning", "Quantum Matter", "Computational Physics"] }
+  { title: "Nobel Lecture: Topological quantum matter", summary: "The concise review of topological phases of matter with some of the semminal papers referred from the Nobel Lecture by Nobel Prize Winner FDM Haldane", link: "https://doi.org/10.1103/RevModPhys.89.040502", tags: ["Topological Matter", "Quantum Hall Effect", "Chern Insulator"] },
+  { title: "Topological Magnons: A Review", summary: "Topological magnons, the quantized spin waves in magnetic materials, have emerged as a fascinating area of research. This article reviews the fundamental concepts, material realizations, and potential applications in spintronics and quantum information processing.", link: "https://doi.org/10.1146/annurev-conmatphys-031620-104715", tags: ["Topological Magnons", "Spintronics", "Review"] },
+  { title: "Non-Abelian Anyons and Topological Quantum Computation", summary: "In this review article, the authors describe current research in this field, focusing on the general theoretical concepts of non-Abelian statistics as it relates to topological quantum computation, on understanding non-Abelian quantum Hall states, on proposed experiments to detect non-Abelian anyons, and on proposed architectures for a topological quantum computer. ", link: "https://arxiv.org/abs/0707.1889", tags: ["Non-Abelian Anyons", "Majorana Modes", "Topological Quantum Computing"] },
+  { title: "Quantum magnonics: when magnon spintronics meets quantum information science", summary: "Exploring the highly interdisciplinary field of quantum magnonics, which combines spintronics, quantum optics and quantum information, this gives an overview of the recent developments concerning the quantum states of magnons and their hybridization with mature quantum platforms.", link: "https://arxiv.org/abs/2111.14241", tags: ["Magnonics", "Quantum Matter", "Quantum Information"] },
+  { title: "Quantum Decoherence", summary: "Exploring the paradigm of Quantum to Classical Transition, this paper is a pedagogical overview of Decoherence in Quantum Systems", link: "https://arxiv.org/abs/1911.06282", tags: ["Quantum Decoherence", "Quantum Master Equations", "Quantum Information"] }
 ];
 
 const galleryItems = [
@@ -50,130 +52,182 @@ const QubitIcon = () => (
 
 
 // --- Physics Simulation Components ---
-// --- Physics Simulation Components ---
-// PASTE THE NEW WavePacketSim2D component code right here,
-// just above the existing SSHModelSim component.
 
-const WavePacketSim2D = ({ isDarkMode }) => {
-    // Simulation parameters
-    const N = 40; // Grid size (lower for better performance)
-    const time_steps = 150;
-    const dt = 0.2;
+const WavePacketSimFinal = ({ isDarkMode }) => {
+    // Parameters
+    const N = 32; // Grid size. Keep this <= 32 for performance. 50 is too slow for web.
+    const timesteps = 50;
 
     // State for user-controllable parameters
     const [D, setD] = useState(0.2); // DMI
-    const [kx0, setKx0] = useState(0.5); // Initial kx
-    const [ky0, setKy0] = useState(0.5); // Initial ky
-    const [sigma, setSigma] = useState(0.4); // Wavepacket width
+    const [kx0, setKx0] = useState(0.0); // Initial kx
+    const [ky0, setKy0] = useState(0.0); // Initial ky
+    const [sigma, setSigma] = useState(0.3); // Wavepacket width
+    const [timeScale, setTimeScale] = useState(100); // Time evolution speed
 
-    // State for animation control
+    // State for animation
     const [frame, setFrame] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
+    const [plotData, setPlotData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
     const animationFrameRef = React.useRef();
-    const timeRef = React.useRef(0);
 
-    // --- Pre-computation using useMemo for efficiency ---
-    const { eigvals, eigvecs, KX, KY } = useMemo(() => {
-        console.log("Recalculating Hamiltonian...");
-        const k_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
-        const KX_grid = Array.from({ length: N }, (_, i) => k_vals);
-        const KY_grid = Array.from({ length: N }, (_, j) => Array(N).fill(k_vals[j]));
+    // --- Core FFT and Complex Number Functions ---
+    // These are required to replicate the SciPy/NumPy logic in JavaScript.
+    const complex = (re, im) => ({ re, im });
+    const cadd = (a, b) => complex(a.re + b.re, a.im + b.im);
+    const csub = (a, b) => complex(a.re - b.re, a.im - b.im);
+    const cmul = (a, b) => complex(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+    const cexp = (c) => {
+        const exp_re = Math.exp(c.re);
+        return complex(exp_re * Math.cos(c.im), exp_re * Math.sin(c.im));
+    };
+    const conj = (a) => complex(a.re, -a.im);
+    const mag2 = (a) => a.re * a.re + a.im * a.im;
 
-        const eigvals_grid = Array.from({ length: N }, () => Array(N).fill(null).map(() => [0, 0]));
-        const eigvecs_grid = Array.from({ length: N }, () => Array(N).fill(null).map(() => [[[0,0],[0,0]],[[0,0],[0,0]]]));
-
-        const delta = [[0.0, 1.0], [-Math.sqrt(3)/2, -0.5], [Math.sqrt(3)/2, -0.5]];
-
-        for (let i = 0; i < N; i++) {
-            for (let j = 0; j < N; j++) {
-                const kx = k_vals[i];
-                const ky = k_vals[j];
-                let d12_re = 0, d12_im = 0;
-
-                for (const vec of delta) {
-                    const phase = kx * vec[0] + ky * vec[1];
-                    const cos_phase = Math.cos(phase);
-                    const sin_phase = Math.sin(phase);
-                    // d[0,1] += -J*exp(i*phase) + i*D*exp(i*phase)  (with J=1)
-                    d12_re += -cos_phase - D * sin_phase;
-                    d12_im += -sin_phase + D * cos_phase;
-                }
-
-                // Analytically solve 2x2 Hermitian matrix: [[0, d], [d*, 0]]
-                const d_mag_sq = d12_re**2 + d12_im**2;
-                const d_mag = Math.sqrt(d_mag_sq);
-                eigvals_grid[i][j] = [-d_mag, d_mag];
-
-                // Eigenvectors (unnormalized)
-                // for eval = -d_mag: [-d12, d_mag]
-                // for eval = +d_mag: [d12, d_mag]
-                // We project onto the lower band (eval = -d_mag)
-                const v_re = -d12_re;
-                const v_im = -d12_im;
-                const norm = Math.sqrt(v_re**2 + v_im**2 + d_mag_sq);
-                
-                eigvecs_grid[i][j][0] = [v_re / norm, v_im / norm]; // eigenvector for lower band
-                // eigvecs_grid[i][j][1] = ... (upper band, not needed for this sim)
-            }
+    // 1D Cooley-Tukey FFT, adapted for complex objects
+    const fft = (x) => {
+        const n = x.length;
+        if (n <= 1) return x;
+        const even = fft(x.filter((_, i) => i % 2 === 0));
+        const odd = fft(x.filter((_, i) => i % 2 === 1));
+        const result = new Array(n);
+        for (let k = 0; k < n / 2; k++) {
+            const t = cmul(cexp(complex(0, -2 * Math.PI * k / n)), odd[k]);
+            result[k] = cadd(even[k], t);
+            result[k + n / 2] = csub(even[k], t);
         }
-        return { eigvals: eigvals_grid, eigvecs: eigvecs_grid, KX: KX_grid, KY: KY_grid };
-    }, [D]); // Recalculate only when DMI changes
-
-    // --- Wave packet calculation ---
-    const wavePacketData = useMemo(() => {
-        const Gk = Array.from({ length: N }, () => Array(N));
-        let total_mag_sq = 0;
-        for (let i = 0; i < N; i++) {
-            for (let j = 0; j < N; j++) {
-                const kx = KX[i][j];
-                const ky = KY[j][i];
-                const exponent = -((kx - kx0)**2 + (ky - ky0)**2) / (2 * sigma**2);
-                Gk[i][j] = Math.exp(exponent);
-                total_mag_sq += Gk[i][j]**2;
-            }
-        }
-        const norm_factor = Math.sqrt(total_mag_sq);
-
-        // Time evolution
-        const t = frame * dt;
-        const psi_k_t_mag_sq = Array.from({ length: N }, () => Array(N));
-
-        for (let i = 0; i < N; i++) {
-            for (let j = 0; j < N; j++) {
-                // Initial state is Gk projected onto the lower band eigenvector
-                // Since the eigenvector is already normalized, the magnitude is just Gk
-                // The time evolution only adds a phase, which disappears when taking |.|^2
-                // Therefore, |psi(k,t)|^2 = |Gk(k)|^2
-                // To show movement, we need to add a group velocity term.
-                // A simple way to simulate this is to shift the center of the packet.
-                // vg_x = dE/dkx, vg_y = dE/dky.
-                // We'll approximate this by shifting kx0, ky0.
-                // This is a simplification but visually effective.
-                const vg_factor = t * 0.1; // Approximate velocity
-                const kx_t = kx0 + vg_factor;
-                const ky_t = ky0 + vg_factor;
-                 const exponent = -((KX[i][j] - kx_t)**2 + (KY[j][i] - ky_t)**2) / (2 * sigma**2);
-
-                psi_k_t_mag_sq[i][j] = Math.exp(2 * exponent) / (norm_factor**2);
-            }
-        }
-        return psi_k_t_mag_sq;
-    }, [frame, kx0, ky0, sigma, eigvecs, KX, KY]);
+        return result;
+    };
     
-    // --- Animation Loop ---
+    // 1D Inverse FFT
+    const ifft = (x) => {
+        const n = x.length;
+        const x_conj = x.map(c => conj(c));
+        const y_conj = fft(x_conj);
+        return y_conj.map(c => complex(c.re / n, -c.im / n));
+    };
+
+    // 2D Inverse FFT by applying 1D IFFT to rows, then columns
+    const ifft2d = (matrix) => {
+        const rows = matrix.map(row => ifft(row));
+        const transposed = rows[0].map((_, colIndex) => rows.map(row => row[colIndex]));
+        const cols_ifft = transposed.map(col => ifft(col));
+        const final_transposed = cols_ifft[0].map((_, colIndex) => cols_ifft.map(row => row[colIndex]));
+        return final_transposed;
+    };
+    
+    // fftshift for 2D matrix
+    const fftshift2d = (matrix) => {
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        const halfRows = Math.ceil(rows / 2);
+        const halfCols = Math.ceil(cols / 2);
+        const shifted = Array.from({ length: rows }, () => new Array(cols));
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                shifted[r][c] = matrix[(r + halfRows) % rows][(c + halfCols) % cols];
+            }
+        }
+        return shifted;
+    };
+
+
+    // --- Main Simulation Logic ---
+    // This effect runs the full simulation calculation. It's heavy.
+    useEffect(() => {
+        setIsLoading(true);
+        // Run simulation in a worker-like pattern to avoid freezing UI
+        setTimeout(() => {
+            // 1. Setup k-space grid
+            const kx_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
+            const ky_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
+            const KX = Array.from({ length: N }, (_, i) => Array(N).fill(kx_vals[i]));
+            const KY = Array.from({ length: N }, (_, j) => Array.from({ length: N }, (_, i) => ky_vals[i]));
+
+            // 2. Calculate Hamiltonian, eigenvalues, and eigenvectors
+            const eigvals = Array.from({ length: N }, () => Array.from({ length: N }, () => [0, 0]));
+            const eigvecs_lower_band = Array.from({ length: N }, () => Array.from({ length: N }, () => [complex(0, 0), complex(0, 0)]));
+            const delta = [[0.0, 1.0], [-Math.sqrt(3)/2, -0.5], [Math.sqrt(3)/2, -0.5]];
+
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    let d12 = complex(0, 0);
+                    for (const vec of delta) {
+                        const phase = complex(0, kx_vals[i] * vec[0] + ky_vals[j] * vec[1]);
+                        const term1 = cmul(complex(-1, 0), cexp(phase)); // -J*exp(i*phase) with J=1
+                        const term2 = cmul(complex(0, D), cexp(phase)); // i*D*exp(i*phase)
+                        d12 = cadd(d12, cadd(term1, term2));
+                    }
+                    const d_mag = Math.sqrt(mag2(d12));
+                    eigvals[i][j] = [-d_mag, d_mag];
+                    
+                    // Eigenvector for lower band (eval = -d_mag): [d12, d_mag] (unnormalized)
+                    const v0 = d12;
+                    const v1 = complex(d_mag, 0);
+                    const norm = Math.sqrt(mag2(v0) + mag2(v1));
+                    eigvecs_lower_band[i][j] = [complex(v0.re / norm, v0.im / norm), complex(v1.re / norm, v1.im / norm)];
+                }
+            }
+
+            // 3. Initial Gaussian wavepacket in k-space
+            const Gk = Array(N).fill(0).map(() => Array(N).fill(0));
+            let Gk_norm_sq = 0;
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const val = Math.exp(-((kx_vals[i] - kx0)**2 + (ky_vals[j] - ky0)**2) / (2 * sigma**2));
+                    Gk[i][j] = val;
+                    Gk_norm_sq += val**2;
+                }
+            }
+            const Gk_norm = Math.sqrt(Gk_norm_sq);
+
+            // 4. Project onto lower band to get initial state psi_k
+            const psi_k = Array.from({ length: N }, (_, i) =>
+                Array.from({ length: N }, (_, j) => {
+                    const g_val = Gk[i][j] / Gk_norm;
+                    return eigvecs_lower_band[i][j].map(c => complex(c.re * g_val, c.im * g_val));
+                })
+            );
+            
+            // 5. Time evolution calculation
+            const t = frame * timeScale;
+            const psi_k_t = Array.from({ length: N }, () => Array.from({ length: N }, () => [complex(0,0), complex(0,0)]));
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const phase = cexp(complex(0, -eigvals[i][j][0] * t));
+                    psi_k_t[i][j][0] = cmul(phase, psi_k[i][j][0]);
+                    psi_k_t[i][j][1] = cmul(phase, psi_k[i][j][1]);
+                }
+            }
+
+            // 6. Inverse Fourier Transform to get real-space wavefunction
+            // We transform the first component of the spinor
+            const psi_k_t_component0 = psi_k_t.map(row => row.map(spinor => spinor[0]));
+            const psi_rt_component0 = ifft2d(psi_k_t_component0);
+
+            // 7. Calculate probability density and apply fftshift
+            const probability_density = fftshift2d(psi_rt_component0.map(row => row.map(c => mag2(c))));
+            
+            setPlotData(probability_density);
+            setIsLoading(false);
+        }, 20); // Small timeout to allow UI to update to "Loading..."
+
+    }, [frame, D, kx0, ky0, sigma, timeScale]); // Re-run the whole simulation if params change
+
+
+    // Animation loop
     useEffect(() => {
         if (isRunning) {
             animationFrameRef.current = requestAnimationFrame(() => {
-                setFrame(prev => (prev + 1) % time_steps);
+                setFrame(prev => (prev + 1) % timesteps);
             });
         }
         return () => cancelAnimationFrame(animationFrameRef.current);
     }, [isRunning, frame]);
 
-    const handleStartStop = () => {
-        setIsRunning(!isRunning);
-    };
-
+    const handleStartStop = () => setIsRunning(!isRunning);
     const handleReset = () => {
         setIsRunning(false);
         setFrame(0);
@@ -181,44 +235,48 @@ const WavePacketSim2D = ({ isDarkMode }) => {
 
     return (
         <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">4. 2D Wave Packet Dynamics</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-6">Simulation of a Gaussian wave packet evolving in momentum space on the lower magnon band of a honeycomb lattice. The movement is an approximation of the group velocity contribution.</p>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">2D Wave Packet Evolution on Honeycomb Lattice</h3>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">A direct JavaScript implementation of the Python/SciPy simulation for a magnon wave packet. This is computationally intensive. Grid size is reduced to {N}x{N} for web performance.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                {/* Plot */}
-                <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px]">
-                    <Plot
-                        data={[{
-                            z: wavePacketData,
-                            x: KX[0],
-                            y: KY.map(row => row[0]),
-                            type: 'surface',
-                            colorscale: 'Viridis',
-                        }]}
-                        layout={{
-                            title: `|ψ(k, t)|² at t = ${(frame * dt).toFixed(1)}`,
-                            autosize: true,
-                            paper_bgcolor: 'rgba(0,0,0,0)',
-                            plot_bgcolor: 'rgba(0,0,0,0)',
-                            font: { color: isDarkMode ? '#cbd5e1' : '#334155' },
-                            scene: {
-                                xaxis: { title: 'kx' },
-                                yaxis: { title: 'ky' },
-                                zaxis: { title: '|ψ|²', range: [0, 0.1] },
-                                camera: { eye: { x: 1.8, y: 1.8, z: 1.5 } }
-                            },
-                             margin: { l: 0, r: 0, b: 0, t: 40 }
-                        }}
-                        useResizeHandler={true}
-                        style={{ width: '100%', height: '100%' }}
-                        config={{ responsive: true }}
-                    />
+                <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px] flex items-center justify-center">
+                    {isLoading ? (
+                        <div className="text-center">
+                            <svg className="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <p className="mt-2 text-slate-600 dark:text-slate-300">Calculating...</p>
+                        </div>
+                    ) : (
+                        <Plot
+                            data={[{
+                                z: plotData,
+                                type: 'surface',
+                                colorscale: 'Viridis',
+                                cmin: 0,
+                                cmax: np.max(plotData) * 0.8, // Adjust color scale for better visibility
+                            }]}
+                            layout={{
+                                title: `|ψ(r, t)|² at t = ${(frame * timeScale).toFixed(0)}`,
+                                autosize: true,
+                                paper_bgcolor: 'rgba(0,0,0,0)',
+                                scene: {
+                                    xaxis: { title: 'x' },
+                                    yaxis: { title: 'y' },
+                                    zaxis: { title: '|ψ|²' },
+                                    camera: { eye: { x: 1.5, y: 1.5, z: 1.5 } }
+                                },
+                                margin: { l: 0, r: 0, b: 0, t: 40 }
+                            }}
+                            useResizeHandler={true}
+                            style={{ width: '100%', height: '100%' }}
+                            config={{ responsive: true }}
+                        />
+                    )}
                 </div>
-                {/* Controls */}
                 <div className="space-y-4">
-                    <div><label className="block text-sm font-medium">DMI `D`: {D.toFixed(2)}</label><input type="range" min="0" max="1.0" step="0.05" value={D} onChange={(e) => setD(parseFloat(e.target.value))} className="w-full" /></div>
-                    <div><label className="block text-sm font-medium">Initial kx₀: {kx0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={kx0} onChange={(e) => setKx0(parseFloat(e.target.value))} className="w-full" /></div>
-                    <div><label className="block text-sm font-medium">Initial ky₀: {ky0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={ky0} onChange={(e) => setKy0(parseFloat(e.target.value))} className="w-full" /></div>
-                    <div><label className="block text-sm font-medium">Width σ: {sigma.toFixed(2)}</label><input type="range" min="0.1" max="1.0" step="0.05" value={sigma} onChange={(e) => setSigma(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">DMI `D`: {D.toFixed(2)}</label><input type="range" min="0" max="1.0" step="0.05" value={D} onChange={e => { setFrame(0); setD(parseFloat(e.target.value)); }} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Initial kx₀: {kx0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={kx0} onChange={e => { setFrame(0); setKx0(parseFloat(e.target.value)); }} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Initial ky₀: {ky0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={ky0} onChange={e => { setFrame(0); setKy0(parseFloat(e.target.value)); }} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Width σ: {sigma.toFixed(2)}</label><input type="range" min="0.1" max="1.0" step="0.05" value={sigma} onChange={e => { setFrame(0); setSigma(parseFloat(e.target.value)); }} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Time Scale: {timeScale}</label><input type="range" min="10" max="500" step="10" value={timeScale} onChange={e => { setTimeScale(parseFloat(e.target.value)); }} className="w-full" /></div>
                     <div className="flex space-x-2 pt-4">
                         <button onClick={handleStartStop} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg w-full">{isRunning ? 'Pause' : 'Start'}</button>
                         <button onClick={handleReset} className="px-4 py-2 bg-slate-500 text-white font-semibold rounded-lg w-full">Reset</button>
@@ -385,8 +443,8 @@ const SimulationsPage = ({ isDarkMode }) => (
     <PageWrapper title="Physics through Sims">
         <p className="text-lg text-slate-700 dark:text-slate-300">One of the best ways to build intuition in physics is to see it in action. This section contains interactive simulations of interesting physical models. Play with the parameters and see what happens!</p>
         <div className="space-y-8">
-          {/* Add the new component here */}
-            <WavePacketSim2D isDarkMode={isDarkMode} />
+      {/* Use the new, accurate simulation component */}
+            <WavePacketSimFinal isDarkMode={isDarkMode} />
             <SpinWaveSim isDarkMode={isDarkMode} />
             <TopologicalMagnonSim isDarkMode={isDarkMode} />
             <SSHModelSim isDarkMode={isDarkMode} />
@@ -402,7 +460,7 @@ const BlogPage = () => (
 
 const GalleryPage = () => (
     <PageWrapper title="Gallery">
-        <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">A collection of plots, figures, and schematics from my research projects and studies. These are placeholders; feel free to replace them with your own work.</p>
+        <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">A collection of plots, figures, and non-academic photos from my research projects, studies and Academic Visits.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">{galleryItems.map((item, index) => (<div key={index} className="group relative overflow-hidden rounded-lg shadow-lg"><img src={item.src} alt={item.caption} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" /><div className="absolute inset-0 bg-black/50 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"><p className="text-white font-semibold">{item.caption}</p></div></div>))}</div>
     </PageWrapper>
 );
