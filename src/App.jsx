@@ -257,7 +257,7 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
     return (
         <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">2D Wave Packet Evolution on Honeycomb Lattice</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-6">A direct JavaScript implementation of the Python/SciPy simulation for a magnon wave packet. This is computationally intensive. Grid size is reduced to {N}x{N} for web performance.</p>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">Propagation of a magnon wave packet. This is computationally intensive. Thus, grid size is reduced to {N}x{N} for web performance.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px] flex items-center justify-center">
                     {isLoading ? (
@@ -517,7 +517,7 @@ const CVPage = () => (
 const SimulationsPage = ({ isDarkMode }) => (
     <PageWrapper title="Physics is Fun">
         <p className="text-lg text-slate-700 dark:text-slate-300">
-            This page features interactive simulations of interesting physical models. The 2D wave packet simulation is a direct port of the Python/SciPy code and is computationally intensive. Please be patient during calculations.
+            This page features interactive simulations of interesting physical models. Please be patient during calculations.
         </p>
         <div className="space-y-8">
             <WavePacketSimFinal isDarkMode={isDarkMode} />
@@ -543,7 +543,7 @@ const GalleryPage = () => (
 
 const ContactPage = () => (
     <PageWrapper title="Contact">
-        <div className="p-8 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/SamriddhaGanguly" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
+        <div className="p-8 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/  " target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
     </PageWrapper>
 );
 
