@@ -440,13 +440,17 @@ const CVPage = () => (
 );
 
 const SimulationsPage = ({ isDarkMode }) => (
-    <PageWrapper title="Physics through Sims">
-        <p className="text-lg text-slate-700 dark:text-slate-300">One of the best ways to build intuition in physics is to see it in action. This section contains interactive simulations of interesting physical models. Play with the parameters and see what happens!</p>
+    <PageWrapper title="Physics is Fun">
+        <p className="text-lg text-slate-700 dark:text-slate-300">
+            This page features interactive simulations of interesting physical models. The 2D wave packet simulation is a direct port of the Python/SciPy code and is computationally intensive.
+        </p>
         <div className="space-y-8">
-      {/* Use the new, accurate simulation component */}
+            {/* Use the new, accurate simulation component */}
             <WavePacketSimFinal isDarkMode={isDarkMode} />
-            <SpinWaveSim isDarkMode={isDarkMode} />
+            
+            {/* You can add the other, simpler simulations back here if you wish */}
             <TopologicalMagnonSim isDarkMode={isDarkMode} />
+            <SpinWaveSim isDarkMode={isDarkMode} />
             <SSHModelSim isDarkMode={isDarkMode} />
         </div>
     </PageWrapper>
