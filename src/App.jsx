@@ -20,14 +20,13 @@ const blogPosts = [
   { title: "Quantum Decoherence", summary: "Exploring the paradigm of Quantum to Classical Transition, this paper is a pedagogical overview of Decoherence in Quantum Systems", link: "https://arxiv.org/abs/1911.06282", tags: ["Quantum Decoherence", "Quantum Master Equations", "Quantum Information"] }
 ];
 
-
 const galleryItems = [
-    { src: "/IISC", caption: "Indian Institute of Science, Bengaluru" },
-    { src: "/GROUPS", caption: "Who says Physics people do not do Math?" },
-    { src: "/GMRT", caption: "GMRT during RAWS December 2023" },
-    { src: "/NCRA", caption: "NCRA-TIFR Main Building, Pune" },
+    { src: "/IISC.png", caption: "Indian Institute of Science, Bengaluru" },
+    { src: "/GROUPS.png", caption: "Who says Physics people do not do Math?" },
+    { src: "/GMRT.png", caption: "GMRT during RAWS December 2023" },
+    { src: "/NCRA.png", caption: "NCRA-TIFR Main Building, Pune" },
 ];
-// --- New Data for Experience and Awards ---
+
 const experienceData = [
   {
     title: "Summer Research Intern",
@@ -69,6 +68,7 @@ const awardsData = [
   { year: "2022", title: "Academic Excellence Award", description: "Honoured by the Hon'ble Chief Minister of West Bengal for achieving AIR 5 in the ISC Class XII Examination." },
   { year: "2020", title: "JBNSTS Junior Fellow", description: "Awarded for qualifying the Jagadis Bose National Science Talent Search Examination." }
 ];
+
 // --- Thematic SVG Icons ---
 const SpinLatticeIcon = () => (
   <svg width="100%" height="100%" viewBox="0 0 100 100" className="stroke-current">
@@ -95,196 +95,315 @@ const QubitIcon = () => (
 // --- Physics Simulation Components ---
 
 const WavePacketSimFinal = ({ isDarkMode }) => {
-    // Parameters
-    const N = 32; // Grid size. Keep this <= 32 for performance. 50 is too slow for web.
-    const timesteps = 50;
-
-    // State for user-controllable parameters
-    const [D, setD] = useState(0.2); // DMI
-    const [kx0, setKx0] = useState(0.0); // Initial kx
-    const [ky0, setKy0] = useState(0.0); // Initial ky
-    const [sigma, setSigma] = useState(0.3); // Wavepacket width
-    const [timeScale, setTimeScale] = useState(100); // Time evolution speed
-
-    // State for animation
+    const N = 32;
+    const timesteps = 60;
+    const [D, setD] = useState(0.2);
+    const [kx0, setKx0] = useState(0.0);
+    const [ky0, setKy0] = useState(0.0);
+    const [sigma, setSigma] = useState(0.4);
+    const [timeScale, setTimeScale] = useState(150);
+    const [frameInterval, setFrameInterval] = useState(50);
     const [frame, setFrame] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
-    const [plotData, setPlotData] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [simulationFrames, setSimulationFrames] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isReady, setIsReady] = useState(false);
+    const animationTimeoutRef = React.useRef();
 
-    const animationFrameRef = React.useRef();
-
-    // --- Core FFT and Complex Number Functions ---
     const complex = (re, im) => ({ re, im });
     const cadd = (a, b) => complex(a.re + b.re, a.im + b.im);
     const csub = (a, b) => complex(a.re - b.re, a.im - b.im);
     const cmul = (a, b) => complex(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
-    const cexp = (c) => {
-        const exp_re = Math.exp(c.re);
-        return complex(exp_re * Math.cos(c.im), exp_re * Math.sin(c.im));
-    };
+    const cexp = (c) => { const exp_re = Math.exp(c.re); return complex(exp_re * Math.cos(c.im), exp_re * Math.sin(c.im)); };
     const conj = (a) => complex(a.re, -a.im);
     const mag2 = (a) => a.re * a.re + a.im * a.im;
+    const fft = (x) => { const n = x.length; if (n <= 1) return x; const even = fft(x.filter((_, i) => i % 2 === 0)); const odd = fft(x.filter((_, i) => i % 2 === 1)); const result = new Array(n); for (let k = 0; k < n / 2; k++) { const t = cmul(cexp(complex(0, -2 * Math.PI * k / n)), odd[k]); result[k] = cadd(even[k], t); result[k + n / 2] = csub(even[k], t); } return result; };
+    const ifft = (x) => { const n = x.length; const x_conj = x.map(c => conj(c)); const y_conj = fft(x_conj); return y_conj.map(c => complex(c.re / n, -c.im / n)); };
+    const ifft2d = (matrix) => { const rows = matrix.map(row => ifft(row)); const transposed = rows[0].map((_, colIndex) => rows.map(row => row[colIndex])); const cols_ifft = transposed.map(col => ifft(col)); const final_transposed = cols_ifft[0].map((_, colIndex) => cols_ifft.map(row => row[colIndex])); return final_transposed; };
+    const fftshift2d = (matrix) => { const rows = matrix.length; const cols = matrix[0].length; const halfRows = Math.ceil(rows / 2); const halfCols = Math.ceil(cols / 2); const shifted = Array.from({ length: rows }, () => new Array(cols)); for (let r = 0; r < rows; r++) { for (let c = 0; c < cols; c++) { shifted[r][c] = matrix[(r + halfRows) % rows][(c + halfCols) % cols]; } } return shifted; };
 
-    const fft = (x) => {
-        const n = x.length;
-        if (n <= 1) return x;
-        const even = fft(x.filter((_, i) => i % 2 === 0));
-        const odd = fft(x.filter((_, i) => i % 2 === 1));
-        const result = new Array(n);
-        for (let k = 0; k < n / 2; k++) {
-            const t = cmul(cexp(complex(0, -2 * Math.PI * k / n)), odd[k]);
-            result[k] = cadd(even[k], t);
-            result[k + n / 2] = csub(even[k], t);
-        }
-        return result;
-    };
-    
-    const ifft = (x) => {
-        const n = x.length;
-        const x_conj = x.map(c => conj(c));
-        const y_conj = fft(x_conj);
-        return y_conj.map(c => complex(c.re / n, -c.im / n));
-    };
-
-    const ifft2d = (matrix) => {
-        const rows = matrix.map(row => ifft(row));
-        const transposed = rows[0].map((_, colIndex) => rows.map(row => row[colIndex]));
-        const cols_ifft = transposed.map(col => ifft(col));
-        const final_transposed = cols_ifft[0].map((_, colIndex) => cols_ifft.map(row => row[colIndex]));
-        return final_transposed;
-    };
-    
-    const fftshift2d = (matrix) => {
-        const rows = matrix.length;
-        const cols = matrix[0].length;
-        const halfRows = Math.ceil(rows / 2);
-        const halfCols = Math.ceil(cols / 2);
-        const shifted = Array.from({ length: rows }, () => new Array(cols));
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                shifted[r][c] = matrix[(r + halfRows) % rows][(c + halfCols) % cols];
-            }
-        }
-        return shifted;
-    };
-
-
-    useEffect(() => {
+    const runSimulation = () => {
+        setIsRunning(false);
         setIsLoading(true);
+        setFrame(0);
         setTimeout(() => {
             const kx_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
             const ky_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
-
             const eigvals = Array.from({ length: N }, () => Array.from({ length: N }, () => [0, 0]));
             const eigvecs_lower_band = Array.from({ length: N }, () => Array.from({ length: N }, () => [complex(0, 0), complex(0, 0)]));
             const delta = [[0.0, 1.0], [-Math.sqrt(3)/2, -0.5], [Math.sqrt(3)/2, -0.5]];
-
-            for (let i = 0; i < N; i++) {
-                for (let j = 0; j < N; j++) {
-                    let d12 = complex(0, 0);
-                    for (const vec of delta) {
-                        const phase = complex(0, kx_vals[i] * vec[0] + ky_vals[j] * vec[1]);
-                        const term1 = cmul(complex(-1, 0), cexp(phase));
-                        const term2 = cmul(complex(0, D), cexp(phase));
-                        d12 = cadd(d12, cadd(term1, term2));
-                    }
-                    const d_mag = Math.sqrt(mag2(d12));
-                    eigvals[i][j] = [-d_mag, d_mag];
-                    
-                    const v0 = d12;
-                    const v1 = complex(d_mag, 0);
-                    const norm = Math.sqrt(mag2(v0) + mag2(v1));
-                    eigvecs_lower_band[i][j] = [complex(v0.re / norm, v0.im / norm), complex(v1.re / norm, v1.im / norm)];
-                }
-            }
-
+            for (let i = 0; i < N; i++) { for (let j = 0; j < N; j++) { let d12 = complex(0, 0); for (const vec of delta) { const phase = complex(0, kx_vals[i] * vec[0] + ky_vals[j] * vec[1]); const term1 = cmul(complex(-1, 0), cexp(phase)); const term2 = cmul(complex(0, D), cexp(phase)); d12 = cadd(d12, cadd(term1, term2)); } const d_mag = Math.sqrt(mag2(d12)); eigvals[i][j] = [-d_mag, d_mag]; const v0 = d12; const v1 = complex(d_mag, 0); const norm = Math.sqrt(mag2(v0) + mag2(v1)); eigvecs_lower_band[i][j] = [complex(v0.re / norm, v0.im / norm), complex(v1.re / norm, v1.im / norm)]; } }
             const Gk = Array(N).fill(0).map(() => Array(N).fill(0));
             let Gk_norm_sq = 0;
-            for (let i = 0; i < N; i++) {
-                for (let j = 0; j < N; j++) {
-                    const val = Math.exp(-((kx_vals[i] - kx0)**2 + (ky_vals[j] - ky0)**2) / (2 * sigma**2));
-                    Gk[i][j] = val;
-                    Gk_norm_sq += val**2;
-                }
-            }
+            for (let i = 0; i < N; i++) { for (let j = 0; j < N; j++) { const val = Math.exp(-((kx_vals[i] - kx0)**2 + (ky_vals[j] - ky0)**2) / (2 * sigma**2)); Gk[i][j] = val; Gk_norm_sq += val**2; } }
             const Gk_norm = Math.sqrt(Gk_norm_sq);
-
-            const psi_k = Array.from({ length: N }, (_, i) =>
-                Array.from({ length: N }, (_, j) => {
-                    const g_val = Gk[i][j] / Gk_norm;
-                    return eigvecs_lower_band[i][j].map(c => complex(c.re * g_val, c.im * g_val));
-                })
-            );
-            
-            const t = frame * timeScale;
-            const psi_k_t = Array.from({ length: N }, () => Array.from({ length: N }, () => [complex(0,0), complex(0,0)]));
-            for (let i = 0; i < N; i++) {
-                for (let j = 0; j < N; j++) {
-                    const phase = cexp(complex(0, -eigvals[i][j][0] * t));
-                    psi_k_t[i][j][0] = cmul(phase, psi_k[i][j][0]);
-                    psi_k_t[i][j][1] = cmul(phase, psi_k[i][j][1]);
-                }
+            const psi_k = Array.from({ length: N }, (_, i) => Array.from({ length: N }, (_, j) => { const g_val = Gk[i][j] / Gk_norm; return eigvecs_lower_band[i][j].map(c => complex(c.re * g_val, c.im * g_val)); }));
+            const allFrames = [];
+            for (let t_step = 0; t_step < timesteps; t_step++) {
+                const t = t_step * timeScale / 10;
+                const psi_k_t = Array.from({ length: N }, () => Array.from({ length: N }, () => [complex(0,0), complex(0,0)]));
+                for (let i = 0; i < N; i++) { for (let j = 0; j < N; j++) { const phase = cexp(complex(0, -eigvals[i][j][0] * t)); psi_k_t[i][j][0] = cmul(phase, psi_k[i][j][0]); psi_k_t[i][j][1] = cmul(phase, psi_k[i][j][1]); } }
+                const psi_k_t_component0 = psi_k_t.map(row => row.map(spinor => spinor[0]));
+                const psi_rt_component0 = ifft2d(psi_k_t_component0);
+                const probability_density = fftshift2d(psi_rt_component0.map(row => row.map(c => mag2(c))));
+                allFrames.push(probability_density);
             }
-            
-            const psi_k_t_component0 = psi_k_t.map(row => row.map(spinor => spinor[0]));
-            const psi_rt_component0 = ifft2d(psi_k_t_component0);
-
-            const probability_density = fftshift2d(psi_rt_component0.map(row => row.map(c => mag2(c))));
-            
-            setPlotData(probability_density);
+            setSimulationFrames(allFrames);
             setIsLoading(false);
-        }, 20);
-
-    }, [frame, D, kx0, ky0, sigma, timeScale]);
-
+            setIsReady(true);
+            setIsRunning(true);
+        }, 50);
+    };
 
     useEffect(() => {
-        if (isRunning) {
-            animationFrameRef.current = requestAnimationFrame(() => {
+        if (isRunning && isReady) {
+            animationTimeoutRef.current = setTimeout(() => {
                 setFrame(prev => (prev + 1) % timesteps);
-            });
+            }, frameInterval);
         }
-        return () => cancelAnimationFrame(animationFrameRef.current);
-    }, [isRunning, frame]);
+        return () => clearTimeout(animationTimeoutRef.current);
+    }, [isRunning, frame, isReady, frameInterval]);
 
-    const handleStartStop = () => setIsRunning(!isRunning);
-    const handleReset = () => {
-        setIsRunning(false);
-        setFrame(0);
+    const handleStartStop = () => {
+        if (isReady) setIsRunning(!isRunning);
     };
 
     return (
         <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">2D Wave Packet Evolution on Honeycomb Lattice</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-6">Propagation of a magnon wave packet. This is computationally intensive. Thus, grid size is reduced to {N}x{N} for web performance.</p>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">A magnon wave packet. Press "Generate & Play" to pre-calculate all frames and start the animation.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px] flex items-center justify-center">
+                    {isLoading ? ( <div className="text-center"><svg className="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p className="mt-2 text-slate-600 dark:text-slate-300">Generating Simulation...</p></div>
+                    ) : isReady ? ( <Plot data={[{ z: simulationFrames[frame], type: 'surface', colorscale: 'Viridis', cmin: 0, cmax: simulationFrames[0] ? Math.max(...simulationFrames[0].flat()) * 0.8 : 1, }]} layout={{ title: `|ψ(r, t)|² at Frame: ${frame}`, autosize: true, paper_bgcolor: 'rgba(0,0,0,0)', scene: { xaxis: { title: 'x' }, yaxis: { title: 'y' }, zaxis: { title: '|ψ|²' }, camera: { eye: { x: 1.5, y: 1.5, z: 1.5 } } }, margin: { l: 0, r: 0, b: 0, t: 40 } }} useResizeHandler={true} style={{ width: '100%', height: '100%' }} config={{ responsive: true }} />
+                    ) : ( <div className="text-center text-slate-500 dark:text-slate-400">Set parameters and click "Generate & Play" to begin.</div> )}
+                </div>
+                <div className="space-y-4">
+                    <div><label className="block text-sm font-medium">DMI `D`: {D.toFixed(2)}</label><input type="range" min="0" max="1.0" step="0.05" value={D} onChange={e => setD(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Initial kx₀: {kx0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={kx0} onChange={e => setKx0(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Initial ky₀: {ky0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={ky0} onChange={e => setKy0(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Width σ: {sigma.toFixed(2)}</label><input type="range" min="0.1" max="1.0" step="0.05" value={sigma} onChange={e => setSigma(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Time Scale: {timeScale}</label><input type="range" min="10" max="500" step="10" value={timeScale} onChange={e => setTimeScale(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Animation Speed (ms): {frameInterval}</label><input type="range" min="10" max="200" step="10" value={frameInterval} onChange={e => setFrameInterval(parseInt(e.target.value))} className="w-full" /></div>
+                    <div className="flex flex-col space-y-2 pt-4">
+                        <button onClick={runSimulation} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg w-full">Generate & Play</button>
+                        <button onClick={handleStartStop} disabled={!isReady || isLoading} className="px-4 py-2 bg-slate-500 text-white font-semibold rounded-lg w-full disabled:opacity-50">{isRunning ? 'Pause' : 'Play'}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ChernInsulatorSim = ({ isDarkMode }) => {
+    const N = 40;
+    const [m, setM] = useState(1.0);
+
+    const bandData = useMemo(() => {
+        const k = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / (N - 1));
+        const upperBand = Array(N).fill(0).map(() => Array(N).fill(0));
+        const lowerBand = Array(N).fill(0).map(() => Array(N).fill(0));
+
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                const kx = k[i];
+                const ky = k[j];
+                const dx = Math.sin(kx);
+                const dy = Math.sin(ky);
+                const dz = m - Math.cos(kx) - Math.cos(ky);
+                const d_mag = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                upperBand[i][j] = d_mag;
+                lowerBand[i][j] = -d_mag;
+            }
+        }
+        return { upperBand, lowerBand, k };
+    }, [m]);
+
+    const isTopological = m > 0 && m < 2;
+    const bandGap = Math.min(Math.abs(2 * m), Math.abs(2 * (m - 2)));
+
+    return (
+        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">4. 2D Chern Insulator (QWZ Model)</h3>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">This model on a square lattice shows a topological phase transition. The bands touch and the gap closes at `m=0` and `m=2`, separating the trivial and topological (Chern number C=1) phases.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px]">
+                    <Plot
+                        data={[
+                            { z: bandData.upperBand, x: bandData.k, y: bandData.k, type: 'surface', colorscale: 'Blues', showscale: false, name: 'Upper Band' },
+                            { z: bandData.lowerBand, x: bandData.k, y: bandData.k, type: 'surface', colorscale: 'Reds', showscale: false, name: 'Lower Band' }
+                        ]}
+                        layout={{
+                            title: 'Energy Bands E(k)',
+                            autosize: true,
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            scene: {
+                                xaxis: { title: 'kx' },
+                                yaxis: { title: 'ky' },
+                                zaxis: { title: 'Energy E' },
+                                camera: { eye: { x: 2, y: 2, z: 1.5 } }
+                            },
+                            margin: { l: 0, r: 0, b: 0, t: 40 }
+                        }}
+                        useResizeHandler={true}
+                        style={{ width: '100%', height: '100%' }}
+                        config={{ responsive: true }}
+                    />
+                </div>
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="m_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Mass `m`: {m.toFixed(2)}</label>
+                        <input id="m_slider" type="range" min="-1.0" max="3.0" step="0.05" value={m} onChange={(e) => setM(parseFloat(e.target.value))} className="w-full" />
+                    </div>
+                     <div className={`p-4 rounded-lg transition-colors duration-300 ${isTopological ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-gray-200 dark:bg-gray-900/50'}`}>
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-white">System Phase: {isTopological ? 'Topological' : 'Trivial'}</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-300">{isTopological ? 'Chern Number C = 1' : 'Chern Number C = 0'}</p>
+                        <p className="text-sm font-mono mt-2 text-slate-700 dark:text-slate-200">Band Gap: {bandGap.toFixed(3)}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const MonteCarloPiSim = ({ isDarkMode }) => {
+    const [points, setPoints] = useState({ inside: [], outside: [] });
+    const [piEstimate, setPiEstimate] = useState(null);
+    const pointCount = points.inside.length + points.outside.length;
+
+    const addPoints = (count) => {
+        const newInside = [];
+        const newOutside = [];
+        for (let i = 0; i < count; i++) {
+            const x = Math.random();
+            const y = Math.random();
+            if (x * x + y * y <= 1) {
+                newInside.push({ x, y });
+            } else {
+                newOutside.push({ x, y });
+            }
+        }
+        
+        setPoints(prevPoints => {
+            const allInside = [...prevPoints.inside, ...newInside];
+            const allOutside = [...prevPoints.outside, ...newOutside];
+            const totalPoints = allInside.length + allOutside.length;
+            if (totalPoints > 0) {
+                setPiEstimate(4 * allInside.length / totalPoints);
+            }
+            return { inside: allInside, outside: allOutside };
+        });
+    };
+
+    const resetSimulation = () => {
+        setPoints({ inside: [], outside: [] });
+        setPiEstimate(null);
+    };
+
+    useEffect(() => {
+        addPoints(100);
+    }, []);
+
+    return (
+        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">5. Monte Carlo Approximation of π</h3>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">This simulation estimates π by randomly placing points in a square. The ratio of points inside the inscribed circle to the total points approximates π/4.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px]">
+                    <Plot
+                        data={[
+                            { x: points.inside.map(p => p.x), y: points.inside.map(p => p.y), mode: 'markers', type: 'scatter', name: 'Inside', marker: { color: '#3b82f6', size: 5 } },
+                            { x: points.outside.map(p => p.x), y: points.outside.map(p => p.y), mode: 'markers', type: 'scatter', name: 'Outside', marker: { color: '#ef4444', size: 5 } }
+                        ]}
+                        layout={{
+                            title: 'Random Points in a 1x1 Square',
+                            autosize: true,
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            plot_bgcolor: 'rgba(0,0,0,0)',
+                            xaxis: { range: [0, 1], scaleratio: 1, showgrid: false },
+                            yaxis: { range: [0, 1], showgrid: false },
+                            shapes: [{ type: 'circle', xref: 'x', yref: 'y', x0: 0, y0: 0, x1: 1, y1: 1, line: { color: isDarkMode ? '#cbd5e1' : '#334155' } }],
+                            legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 },
+                            margin: { l: 40, r: 20, b: 40, t: 40 }
+                        }}
+                        useResizeHandler={true}
+                        style={{ width: '100%', height: '100%' }}
+                        config={{ responsive: true }}
+                    />
+                </div>
+                <div className="space-y-4">
+                    <div className="p-4 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center">
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-white">π Estimate</h4>
+                        <p className="text-3xl font-mono mt-2 text-blue-600 dark:text-blue-300">{piEstimate ? piEstimate.toFixed(6) : 'N/A'}</p>
+                    </div>
+                     <div className="p-4 bg-slate-200 dark:bg-slate-700 rounded-lg text-center">
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-white">Total Points</h4>
+                        <p className="text-3xl font-mono mt-2 text-slate-600 dark:text-slate-300">{pointCount}</p>
+                    </div>
+                    <div className="flex flex-col space-y-2 pt-4">
+                        <button onClick={() => addPoints(100)} className="px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg w-full">Add 100 Points</button>
+                        <button onClick={() => addPoints(1000)} className="px-4 py-2 bg-emerald-700 text-white font-semibold rounded-lg w-full">Add 1000 Points</button>
+                        <button onClick={resetSimulation} className="px-4 py-2 bg-slate-500 text-white font-semibold rounded-lg w-full">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const HofstadterButterflySim = ({ isDarkMode }) => {
+    const [qMax, setQMax] = useState(25);
+    const [plotData, setPlotData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const calculateButterfly = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            const allPoints = { x: [], y: [] };
+            for (let q = 1; q <= qMax; q++) {
+                for (let p = 0; p <= q; p++) {
+                    const alpha = p / q;
+                    for (let j = 0; j < q; j++) {
+                        const energy = 2 * Math.cos(2 * Math.PI * (j / q - alpha / 2));
+                        allPoints.x.push(alpha);
+                        allPoints.y.push(energy);
+                    }
+                }
+            }
+            setPlotData([{
+                x: allPoints.x,
+                y: allPoints.y,
+                mode: 'markers',
+                type: 'scattergl',
+                marker: { color: isDarkMode ? '#60a5fa' : '#2563eb', size: 1.5, opacity: 0.7 }
+            }]);
+            setIsLoading(false);
+        }, 50);
+    };
+    
+    useEffect(() => {
+        calculateButterfly();
+    }, [qMax]);
+
+    return (
+        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">6. Hofstadter's Butterfly (Integer QHE)</h3>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">The energy spectrum of a 2D electron gas in a magnetic field, as a function of the magnetic flux α = Φ/Φ₀. The fractal, self-similar structure is a hallmark of the Integer Quantum Hall Effect.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px] flex items-center justify-center">
                     {isLoading ? (
-                        <div className="text-center">
-                            <svg className="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            <p className="mt-2 text-slate-600 dark:text-slate-300">Calculating...</p>
-                        </div>
+                        <div className="text-center"><svg className="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p className="mt-2">Calculating...</p></div>
                     ) : (
                         <Plot
-                            data={[{
-                                z: plotData,
-                                type: 'surface',
-                                colorscale: 'Viridis',
-                                cmin: 0,
-                                cmax: plotData ? Math.max(...plotData.flat()) * 0.8 : 1,
-                            }]}
+                            data={plotData}
                             layout={{
-                                title: `|ψ(r, t)|² at t = ${(frame * timeScale).toFixed(0)}`,
+                                title: 'Energy Spectrum E vs. Magnetic Flux α',
                                 autosize: true,
                                 paper_bgcolor: 'rgba(0,0,0,0)',
-                                scene: {
-                                    xaxis: { title: 'x' },
-                                    yaxis: { title: 'y' },
-                                    zaxis: { title: '|ψ|²' },
-                                    camera: { eye: { x: 1.5, y: 1.5, z: 1.5 } }
-                                },
-                                margin: { l: 0, r: 0, b: 0, t: 40 }
+                                plot_bgcolor: 'rgba(0,0,0,0)',
+                                xaxis: { title: 'α = p/q', range: [0, 1] },
+                                yaxis: { title: 'Energy E', range: [-4.1, 4.1] },
+                                margin: { l: 50, r: 20, b: 50, t: 40 }
                             }}
                             useResizeHandler={true}
                             style={{ width: '100%', height: '100%' }}
@@ -293,14 +412,13 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
                     )}
                 </div>
                 <div className="space-y-4">
-                    <div><label className="block text-sm font-medium">DMI `D`: {D.toFixed(2)}</label><input type="range" min="0" max="1.0" step="0.05" value={D} onChange={e => { setFrame(0); setD(parseFloat(e.target.value)); }} className="w-full" /></div>
-                    <div><label className="block text-sm font-medium">Initial kx₀: {kx0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={kx0} onChange={e => { setFrame(0); setKx0(parseFloat(e.target.value)); }} className="w-full" /></div>
-                    <div><label className="block text-sm font-medium">Initial ky₀: {ky0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={ky0} onChange={e => { setFrame(0); setKy0(parseFloat(e.target.value)); }} className="w-full" /></div>
-                    <div><label className="block text-sm font-medium">Width σ: {sigma.toFixed(2)}</label><input type="range" min="0.1" max="1.0" step="0.05" value={sigma} onChange={e => { setFrame(0); setSigma(parseFloat(e.target.value)); }} className="w-full" /></div>
-                    <div><label className="block text-sm font-medium">Time Scale: {timeScale}</label><input type="range" min="10" max="500" step="10" value={timeScale} onChange={e => { setTimeScale(parseFloat(e.target.value)); }} className="w-full" /></div>
-                    <div className="flex space-x-2 pt-4">
-                        <button onClick={handleStartStop} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg w-full">{isRunning ? 'Pause' : 'Start'}</button>
-                        <button onClick={handleReset} className="px-4 py-2 bg-slate-500 text-white font-semibold rounded-lg w-full">Reset</button>
+                    <div>
+                        <label htmlFor="q_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Resolution (Max Denominator q): {qMax}</label>
+                        <input id="q_slider" type="range" min="5" max="50" step="1" value={qMax} onChange={(e) => setQMax(parseInt(e.target.value))} className="w-full" />
+                    </div>
+                    <div className="p-4 bg-slate-200 dark:bg-slate-700 rounded-lg">
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-white">About the Plot</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">This is an approximation of the full spectrum. A higher resolution will reveal more of the fractal's detail but requires more computation.</p>
                     </div>
                 </div>
             </div>
@@ -360,8 +478,8 @@ const SpinWaveSim = ({ isDarkMode }) => {
 };
 
 const TopologicalMagnonSim = ({ isDarkMode }) => {
-    const [D, setD] = useState(0.5); // DMI
-    const [B, setB] = useState(0.3); // Magnetic Field
+    const [D, setD] = useState(0.5);
+    const [B, setB] = useState(0.3);
 
     const dispersionData = useMemo(() => {
         const k_values = Array.from({ length: 201 }, (_, i) => (i - 100) * Math.PI / 100);
@@ -379,7 +497,7 @@ const TopologicalMagnonSim = ({ isDarkMode }) => {
             <p className="text-slate-600 dark:text-slate-300 mb-6">A 1D model where Dzyaloshinskii-Moriya Interaction (DMI) `D` breaks inversion symmetry, splitting the magnon bands. An external field `B` sets the baseline energy.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="space-y-4">
-                    <div><label htmlFor="d_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">DMI `D`: {D.toFixed(2)}</label><input id="d_slider" type="range" min="0" max="1.5" step="0.05" value={D} onChange={(e) => setD(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
+                    <div><label htmlFor="d_slider_topo" className="block text-sm font-medium text-slate-700 dark:text-slate-300">DMI `D`: {D.toFixed(2)}</label><input id="d_slider_topo" type="range" min="0" max="1.5" step="0.05" value={D} onChange={(e) => setD(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
                     <div><label htmlFor="b_slider" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Magnetic Field `B`: {B.toFixed(2)}</label><input id="b_slider" type="range" min="0" max="2.0" step="0.05" value={B} onChange={(e) => setB(parseFloat(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700" /></div>
                     <div className={`p-4 rounded-lg transition-colors duration-300 ${isGapped ? 'bg-purple-100 dark:bg-purple-900/50' : 'bg-gray-100 dark:bg-gray-900/50'}`}><h4 className="font-bold text-lg text-slate-800 dark:text-white">System State: {isGapped ? 'Topologically Non-Trivial' : 'Trivial (No DMI)'}</h4><p className="text-sm text-slate-600 dark:text-slate-300">{isGapped ? 'Asymmetric bands can lead to thermal Hall effect.' : 'Standard ferromagnetic dispersion.'}</p></div>
                 </div>
@@ -405,7 +523,7 @@ const HomePage = () => (
                 Samriddha Ganguly
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
-                Undegraduate Student at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
+                An undegrad at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
             </p>
             <div className="mt-8 flex justify-center gap-4">
                 <a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail size={20} /></a>
@@ -454,7 +572,6 @@ const ResearchPage = () => (
 const CVPage = () => (
     <PageWrapper title="Curriculum Vitae">
         <div className="space-y-12">
-            {/* Education Section */}
             <div>
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Education</h3>
                 <div className="space-y-4">
@@ -467,8 +584,6 @@ const CVPage = () => (
                     ))}
                 </div>
             </div>
-
-            {/* Research Experience Section */}
             <div>
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Research Experience</h3>
                 <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
@@ -483,8 +598,6 @@ const CVPage = () => (
                     ))}
                 </div>
             </div>
-
-            {/* Awards Section */}
             <div>
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Awards & Honours</h3>
                  <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
@@ -498,8 +611,6 @@ const CVPage = () => (
                     ))}
                 </div>
             </div>
-
-            {/* Coursework Section */}
             <div>
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Relevant Coursework</h3>
                 <div className="flex flex-wrap gap-2">
@@ -517,13 +628,16 @@ const CVPage = () => (
 const SimulationsPage = ({ isDarkMode }) => (
     <PageWrapper title="Physics is Fun">
         <p className="text-lg text-slate-700 dark:text-slate-300">
-            This page features interactive simulations of interesting physical models. Please be patient during calculations.
+            This page features interactive simulations of interesting physical and mathematical models. Please be patient during calculations.
         </p>
         <div className="space-y-8">
             <WavePacketSimFinal isDarkMode={isDarkMode} />
+            <ChernInsulatorSim isDarkMode={isDarkMode} />
             <TopologicalMagnonSim isDarkMode={isDarkMode} />
             <SpinWaveSim isDarkMode={isDarkMode} />
             <SSHModelSim isDarkMode={isDarkMode} />
+            <MonteCarloPiSim isDarkMode={isDarkMode} />
+            <HofstadterButterflySim isDarkMode={isDarkMode} />
         </div>
     </PageWrapper>
 );
@@ -543,7 +657,7 @@ const GalleryPage = () => (
 
 const ContactPage = () => (
     <PageWrapper title="Contact">
-        <div className="p-8 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/  " target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
+        <div className="p-8 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
     </PageWrapper>
 );
 
