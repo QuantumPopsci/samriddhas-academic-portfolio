@@ -50,7 +50,184 @@ const QubitIcon = () => (
 
 
 // --- Physics Simulation Components ---
+// --- Physics Simulation Components ---
+// PASTE THE NEW WavePacketSim2D component code right here,
+// just above the existing SSHModelSim component.
 
+const WavePacketSim2D = ({ isDarkMode }) => {
+    // Simulation parameters
+    const N = 40; // Grid size (lower for better performance)
+    const time_steps = 150;
+    const dt = 0.2;
+
+    // State for user-controllable parameters
+    const [D, setD] = useState(0.2); // DMI
+    const [kx0, setKx0] = useState(0.5); // Initial kx
+    const [ky0, setKy0] = useState(0.5); // Initial ky
+    const [sigma, setSigma] = useState(0.4); // Wavepacket width
+
+    // State for animation control
+    const [frame, setFrame] = useState(0);
+    const [isRunning, setIsRunning] = useState(false);
+    const animationFrameRef = React.useRef();
+    const timeRef = React.useRef(0);
+
+    // --- Pre-computation using useMemo for efficiency ---
+    const { eigvals, eigvecs, KX, KY } = useMemo(() => {
+        console.log("Recalculating Hamiltonian...");
+        const k_vals = Array.from({ length: N }, (_, i) => -Math.PI + (2 * Math.PI * i) / N);
+        const KX_grid = Array.from({ length: N }, (_, i) => k_vals);
+        const KY_grid = Array.from({ length: N }, (_, j) => Array(N).fill(k_vals[j]));
+
+        const eigvals_grid = Array.from({ length: N }, () => Array(N).fill(null).map(() => [0, 0]));
+        const eigvecs_grid = Array.from({ length: N }, () => Array(N).fill(null).map(() => [[[0,0],[0,0]],[[0,0],[0,0]]]));
+
+        const delta = [[0.0, 1.0], [-Math.sqrt(3)/2, -0.5], [Math.sqrt(3)/2, -0.5]];
+
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                const kx = k_vals[i];
+                const ky = k_vals[j];
+                let d12_re = 0, d12_im = 0;
+
+                for (const vec of delta) {
+                    const phase = kx * vec[0] + ky * vec[1];
+                    const cos_phase = Math.cos(phase);
+                    const sin_phase = Math.sin(phase);
+                    // d[0,1] += -J*exp(i*phase) + i*D*exp(i*phase)  (with J=1)
+                    d12_re += -cos_phase - D * sin_phase;
+                    d12_im += -sin_phase + D * cos_phase;
+                }
+
+                // Analytically solve 2x2 Hermitian matrix: [[0, d], [d*, 0]]
+                const d_mag_sq = d12_re**2 + d12_im**2;
+                const d_mag = Math.sqrt(d_mag_sq);
+                eigvals_grid[i][j] = [-d_mag, d_mag];
+
+                // Eigenvectors (unnormalized)
+                // for eval = -d_mag: [-d12, d_mag]
+                // for eval = +d_mag: [d12, d_mag]
+                // We project onto the lower band (eval = -d_mag)
+                const v_re = -d12_re;
+                const v_im = -d12_im;
+                const norm = Math.sqrt(v_re**2 + v_im**2 + d_mag_sq);
+                
+                eigvecs_grid[i][j][0] = [v_re / norm, v_im / norm]; // eigenvector for lower band
+                // eigvecs_grid[i][j][1] = ... (upper band, not needed for this sim)
+            }
+        }
+        return { eigvals: eigvals_grid, eigvecs: eigvecs_grid, KX: KX_grid, KY: KY_grid };
+    }, [D]); // Recalculate only when DMI changes
+
+    // --- Wave packet calculation ---
+    const wavePacketData = useMemo(() => {
+        const Gk = Array.from({ length: N }, () => Array(N));
+        let total_mag_sq = 0;
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                const kx = KX[i][j];
+                const ky = KY[j][i];
+                const exponent = -((kx - kx0)**2 + (ky - ky0)**2) / (2 * sigma**2);
+                Gk[i][j] = Math.exp(exponent);
+                total_mag_sq += Gk[i][j]**2;
+            }
+        }
+        const norm_factor = Math.sqrt(total_mag_sq);
+
+        // Time evolution
+        const t = frame * dt;
+        const psi_k_t_mag_sq = Array.from({ length: N }, () => Array(N));
+
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                // Initial state is Gk projected onto the lower band eigenvector
+                // Since the eigenvector is already normalized, the magnitude is just Gk
+                // The time evolution only adds a phase, which disappears when taking |.|^2
+                // Therefore, |psi(k,t)|^2 = |Gk(k)|^2
+                // To show movement, we need to add a group velocity term.
+                // A simple way to simulate this is to shift the center of the packet.
+                // vg_x = dE/dkx, vg_y = dE/dky.
+                // We'll approximate this by shifting kx0, ky0.
+                // This is a simplification but visually effective.
+                const vg_factor = t * 0.1; // Approximate velocity
+                const kx_t = kx0 + vg_factor;
+                const ky_t = ky0 + vg_factor;
+                 const exponent = -((KX[i][j] - kx_t)**2 + (KY[j][i] - ky_t)**2) / (2 * sigma**2);
+
+                psi_k_t_mag_sq[i][j] = Math.exp(2 * exponent) / (norm_factor**2);
+            }
+        }
+        return psi_k_t_mag_sq;
+    }, [frame, kx0, ky0, sigma, eigvecs, KX, KY]);
+    
+    // --- Animation Loop ---
+    useEffect(() => {
+        if (isRunning) {
+            animationFrameRef.current = requestAnimationFrame(() => {
+                setFrame(prev => (prev + 1) % time_steps);
+            });
+        }
+        return () => cancelAnimationFrame(animationFrameRef.current);
+    }, [isRunning, frame]);
+
+    const handleStartStop = () => {
+        setIsRunning(!isRunning);
+    };
+
+    const handleReset = () => {
+        setIsRunning(false);
+        setFrame(0);
+    };
+
+    return (
+        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">4. 2D Wave Packet Dynamics</h3>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">Simulation of a Gaussian wave packet evolving in momentum space on the lower magnon band of a honeycomb lattice. The movement is an approximation of the group velocity contribution.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {/* Plot */}
+                <div className="md:col-span-2 bg-white dark:bg-slate-900/50 rounded-lg overflow-hidden min-h-[400px]">
+                    <Plot
+                        data={[{
+                            z: wavePacketData,
+                            x: KX[0],
+                            y: KY.map(row => row[0]),
+                            type: 'surface',
+                            colorscale: 'Viridis',
+                        }]}
+                        layout={{
+                            title: `|ψ(k, t)|² at t = ${(frame * dt).toFixed(1)}`,
+                            autosize: true,
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            plot_bgcolor: 'rgba(0,0,0,0)',
+                            font: { color: isDarkMode ? '#cbd5e1' : '#334155' },
+                            scene: {
+                                xaxis: { title: 'kx' },
+                                yaxis: { title: 'ky' },
+                                zaxis: { title: '|ψ|²', range: [0, 0.1] },
+                                camera: { eye: { x: 1.8, y: 1.8, z: 1.5 } }
+                            },
+                             margin: { l: 0, r: 0, b: 0, t: 40 }
+                        }}
+                        useResizeHandler={true}
+                        style={{ width: '100%', height: '100%' }}
+                        config={{ responsive: true }}
+                    />
+                </div>
+                {/* Controls */}
+                <div className="space-y-4">
+                    <div><label className="block text-sm font-medium">DMI `D`: {D.toFixed(2)}</label><input type="range" min="0" max="1.0" step="0.05" value={D} onChange={(e) => setD(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Initial kx₀: {kx0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={kx0} onChange={(e) => setKx0(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Initial ky₀: {ky0.toFixed(2)}</label><input type="range" min={-Math.PI} max={Math.PI} step="0.1" value={ky0} onChange={(e) => setKy0(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div><label className="block text-sm font-medium">Width σ: {sigma.toFixed(2)}</label><input type="range" min="0.1" max="1.0" step="0.05" value={sigma} onChange={(e) => setSigma(parseFloat(e.target.value))} className="w-full" /></div>
+                    <div className="flex space-x-2 pt-4">
+                        <button onClick={handleStartStop} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg w-full">{isRunning ? 'Pause' : 'Start'}</button>
+                        <button onClick={handleReset} className="px-4 py-2 bg-slate-500 text-white font-semibold rounded-lg w-full">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 const SSHModelSim = ({ isDarkMode }) => {
   const [t1, setT1] = useState(1.0);
   const [t2, setT2] = useState(1.5);
@@ -205,9 +382,11 @@ const CVPage = () => (
 );
 
 const SimulationsPage = ({ isDarkMode }) => (
-    <PageWrapper title="Physics is Fun">
+    <PageWrapper title="Physics through Sims">
         <p className="text-lg text-slate-700 dark:text-slate-300">One of the best ways to build intuition in physics is to see it in action. This section contains interactive simulations of interesting physical models. Play with the parameters and see what happens!</p>
         <div className="space-y-8">
+          {/* Add the new component here */}
+            <WavePacketSim2D isDarkMode={isDarkMode} />
             <SpinWaveSim isDarkMode={isDarkMode} />
             <TopologicalMagnonSim isDarkMode={isDarkMode} />
             <SSHModelSim isDarkMode={isDarkMode} />
@@ -216,7 +395,7 @@ const SimulationsPage = ({ isDarkMode }) => (
 );
 
 const BlogPage = () => (
-    <PageWrapper title="Blog & Articles">
+    <PageWrapper title="Papers & Articles">
         <div className="space-y-8">{blogPosts.map((post, index) => (<div key={index} className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg shadow-md transition-transform hover:scale-[1.02]"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{post.title}</h3><div className="flex flex-wrap gap-2 my-2">{post.tags.map(tag => <span key={tag} className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full">{tag}</span>)}</div><p className="text-slate-600 dark:text-slate-300 my-4">{post.summary}</p><a href={post.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400">Read Paper &rarr;</a></div>))}</div>
     </PageWrapper>
 );
