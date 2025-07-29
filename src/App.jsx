@@ -405,7 +405,7 @@ const HomePage = () => (
                 Samriddha Ganguly
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
-                A Physics undergraduate at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
+                An undegrad at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
             </p>
             <div className="mt-8 flex justify-center gap-4">
                 <a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail size={20} /></a>
@@ -419,7 +419,7 @@ const HomePage = () => (
             <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center">
                 <div className="w-24 h-24 mx-auto text-blue-500"><Atom className="w-full h-full" strokeWidth={1.5}/></div>
                 <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Materials</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Investigating exotic electronic and magnetic properties in novel materials.</p>
+                <p className="mt-2 text-slate-600 dark:text-slate-300">Investigating electronic and magnetic properties in novel materials.</p>
             </div>
              <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center">
                 <div className="w-24 h-24 mx-auto text-emerald-500"><SpinLatticeIcon /></div>
