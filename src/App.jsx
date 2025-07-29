@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
 import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves } from 'lucide-react';
 
@@ -92,6 +92,72 @@ const QubitIcon = () => (
     </svg>
 );
 
+// --- New Design Components ---
+const WaveAnimation = () => {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        let time = 0;
+
+        const resizeCanvas = () => {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+        };
+
+        const waves = [
+            { amp: 25, freq: 0.02, phase: 0, color: "rgba(59, 130, 246, 0.7)" }, // blue-500
+            { amp: 30, freq: 0.015, phase: 1.5, color: "rgba(96, 165, 250, 0.7)" }, // blue-400
+            { amp: 20, freq: 0.025, phase: 3, color: "rgba(147, 197, 253, 0.7)" } // blue-300
+        ];
+
+        let animationFrameId;
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            time += 0.05;
+
+            waves.forEach(wave => {
+                ctx.beginPath();
+                ctx.strokeStyle = wave.color;
+                ctx.lineWidth = 2;
+                for (let x = 0; x < canvas.width; x++) {
+                    const y = canvas.height / 2 + wave.amp * Math.sin(x * wave.freq + time + wave.phase);
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            });
+            
+            animationFrameId = requestAnimationFrame(animate);
+        };
+
+        resizeCanvas();
+        animate();
+
+        window.addEventListener('resize', resizeCanvas);
+        return () => {
+            window.removeEventListener('resize', resizeCanvas);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
+
+    return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
+};
+
+
+const PageHeader = ({ title }) => (
+    <div className="relative py-16 sm:py-20 rounded-lg overflow-hidden bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm mb-12">
+        <div className="absolute inset-0 -z-10">
+            <svg className="absolute top-0 left-0 w-full h-full stroke-slate-300 dark:stroke-slate-700 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]" aria-hidden="true">
+                <defs><pattern id="83fd4e5a-9d52-4224-8854-491221ab92a6" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse"><path d="M100 200V.5M.5 .5H200" fill="none"/></pattern></defs>
+                <svg x="50%" y="-1" className="overflow-visible fill-slate-200/20 dark:fill-slate-800/20"><path d="M-100.5 0h201v201h-201Z M699.5 0h201v201h-201Z M499.5 400h201v201h-201Z M-300.5 600h201v201h-201Z" strokeWidth="0"/></svg>
+                <rect width="100%" height="100%" strokeWidth="0" fill="url(#83fd4e5a-9d52-4224-8854-491221ab92a6)"/>
+            </svg>
+        </div>
+        <h2 className="text-4xl text-center font-bold tracking-tight text-slate-900 dark:text-white page-title-glow">{title}</h2>
+    </div>
+);
+
 // --- Physics Simulation Components ---
 
 const WavePacketSimFinal = ({ isDarkMode }) => {
@@ -169,7 +235,7 @@ const WavePacketSimFinal = ({ isDarkMode }) => {
     };
 
     return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+        <div className="simulation-card">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">2D Wave Packet Evolution on Honeycomb Lattice</h3>
             <p className="text-slate-600 dark:text-slate-300 mb-6">A direct JavaScript implementation of the Python/SciPy simulation for a magnon wave packet. Press "Generate & Play" to pre-calculate all frames and start the animation.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -223,7 +289,7 @@ const ChernInsulatorSim = ({ isDarkMode }) => {
     const bandGap = Math.min(Math.abs(2 * m), Math.abs(2 * (m - 2)));
 
     return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+        <div className="simulation-card">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">4. 2D Chern Insulator (QWZ Model)</h3>
             <p className="text-slate-600 dark:text-slate-300 mb-6">This model on a square lattice shows a topological phase transition. The bands touch and the gap closes at `m=0` and `m=2`, separating the trivial and topological (Chern number C=1) phases.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -305,7 +371,7 @@ const MonteCarloPiSim = ({ isDarkMode }) => {
     }, []);
 
     return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+        <div className="simulation-card">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">5. Monte Carlo Approximation of π</h3>
             <p className="text-slate-600 dark:text-slate-300 mb-6">This simulation estimates π by randomly placing points in a square. The ratio of points inside the inscribed circle to the total points approximates π/4.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -386,7 +452,7 @@ const HofstadterButterflySim = ({ isDarkMode }) => {
     }, [qMax]);
 
     return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+        <div className="simulation-card">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">6. Hofstadter's Butterfly (Integer QHE)</h3>
             <p className="text-slate-600 dark:text-slate-300 mb-6">The energy spectrum of a 2D electron gas in a magnetic field, as a function of the magnetic flux α = Φ/Φ₀. The fractal, self-similar structure is a hallmark of the Integer Quantum Hall Effect.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -439,7 +505,7 @@ const SSHModelSim = ({ isDarkMode }) => {
   const bandGap = 2 * Math.abs(t1 - t2);
 
   return (
-    <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+    <div className="simulation-card">
       <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">1. SSH Model (Topological Insulator)</h3>
       <p className="text-slate-600 dark:text-slate-300 mb-6">A 1D toy model for a topological insulator, describing a chain of atoms with alternating hopping amplitudes `t₁` and `t₂`.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -463,7 +529,7 @@ const SpinWaveSim = ({ isDarkMode }) => {
     }, [J]);
 
     return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+        <div className="simulation-card">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">2. Ferromagnetic Spin Waves (Magnons)</h3>
             <p className="text-slate-600 dark:text-slate-300 mb-6">The dispersion for magnons in a 1D ferromagnetic chain with exchange coupling `J`. These are the collective excitations of the ordered spin system.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -492,7 +558,7 @@ const TopologicalMagnonSim = ({ isDarkMode }) => {
     const isGapped = D > 0;
 
     return (
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+        <div className="simulation-card">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">3. Topological Magnon Bands</h3>
             <p className="text-slate-600 dark:text-slate-300 mb-6">A 1D model where Dzyaloshinskii-Moriya Interaction (DMI) `D` breaks inversion symmetry, splitting the magnon bands. An external field `B` sets the baseline energy.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -511,16 +577,17 @@ const TopologicalMagnonSim = ({ isDarkMode }) => {
 
 const PageWrapper = ({ title, children, showTitle=true }) => (
     <div className="animate-fade-in-up space-y-8">
-        {showTitle && <h2 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white border-b-2 border-blue-500 pb-2">{title}</h2>}
+        {showTitle && <PageHeader title={title} />}
         {children}
     </div>
 );
 
 const HomePage = () => (
     <PageWrapper title="Home" showTitle={false}>
-        <div className="text-center py-12 md:py-20">
+        <div className="relative text-center py-12 md:py-20 z-10 overflow-hidden rounded-lg">
+            <div className="absolute inset-0 -z-10"><WaveAnimation /></div>
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Samriddha Ganguly
+                Samriddha's Quantum Realm
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
                 An undegrad at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
@@ -534,22 +601,22 @@ const HomePage = () => (
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <a href="https://www.nature.com/articles/nature23268" target="_blank" rel="noopener noreferrer" className="block p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center transition-transform hover:scale-105">
+            <a href="https://www.nature.com/articles/nature23268" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-blue-500"><Atom className="w-full h-full" strokeWidth={1.5}/></div>
                 <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Materials</h3>
                 <p className="mt-2 text-slate-600 dark:text-slate-300">Investigating electronic and magnetic properties in novel materials.</p>
             </a>
-             <a href="https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.88.041002" target="_blank" rel="noopener noreferrer" className="block p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center transition-transform hover:scale-105">
+             <a href="https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.88.041002" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-emerald-500"><SpinLatticeIcon /></div>
                 <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Magnetism</h3>
                 <p className="mt-2 text-slate-600 dark:text-slate-300">Exploring spin liquids, topological magnons, and frustrated magnetic systems.</p>
             </a>
-             <a href="https://qiskit.org/textbook/what-is-quantum.html" target="_blank" rel="noopener noreferrer" className="block p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center transition-transform hover:scale-105">
+             <a href="https://qiskit.org/textbook/what-is-quantum.html" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-purple-500"><QubitIcon /></div>
                 <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Computation</h3>
                 <p className="mt-2 text-slate-600 dark:text-slate-300">Harnessing quantum phenomena for fault-tolerant information processing.</p>
             </a>
-             <a href="http://www-personal.umich.edu/~mejn/cp/" target="_blank" rel="noopener noreferrer" className="block p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center transition-transform hover:scale-105">
+             <a href="http://www-personal.umich.edu/~mejn/cp/" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-rose-500"><BrainCircuit className="w-full h-full" strokeWidth={1.5}/></div>
                 <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Computational Physics</h3>
                 <p className="mt-2 text-slate-600 dark:text-slate-300">Applying numerical methods and ML to solve complex physical problems.</p>
@@ -562,9 +629,9 @@ const ResearchPage = () => (
     <PageWrapper title="Research Interests">
         <div className="space-y-6 text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
             <p>My research interests are centered at the confluence of condensed matter theory, quantum information, and computational physics. I aim to explore novel quantum phenomena in materials and harness them for future technologies.</p>
-            <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Topological Magnons for Quantum Computing</h3><p>Magnons, the quanta of spin waves, can exhibit non-trivial topological properties. I am interested in how these can be used as robust carriers of quantum information, leading to new platforms for quantum computation that are intrinsically protected from certain types of noise.</p></div>
-            <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Quantum Spin Liquids</h3><p>These are exotic states of matter that defy conventional magnetic ordering even at absolute zero. Their highly entangled nature makes them a prime candidate for realizing topological quantum computation. My interest lies in theoretically modeling these systems and identifying experimental signatures.</p></div>
-            <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Computational Approaches & Machine Learning</h3><p>I am a firm believer in the power of computation to solve complex physical problems. I am actively developing my skills in numerical methods and applying machine learning to classify quantum phases of matter and accelerate the discovery of new materials.</p></div>
+            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Topological Magnons for Quantum Computing</h3><p>Magnons, the quanta of spin waves, can exhibit non-trivial topological properties. I am interested in how these can be used as robust carriers of quantum information, leading to new platforms for quantum computation that are intrinsically protected from certain types of noise.</p></div>
+            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Quantum Spin Liquids</h3><p>These are exotic states of matter that defy conventional magnetic ordering even at absolute zero. Their highly entangled nature makes them a prime candidate for realizing topological quantum computation. My interest lies in theoretically modeling these systems and identifying experimental signatures.</p></div>
+            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Computational Approaches & Machine Learning</h3><p>I am a firm believer in the power of computation to solve complex physical problems. I am actively developing my skills in numerical methods and applying machine learning to classify quantum phases of matter and accelerate the discovery of new materials.</p></div>
         </div>
     </PageWrapper>
 );
@@ -576,7 +643,7 @@ const CVPage = () => (
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Education</h3>
                 <div className="space-y-4">
                     {cvData.education.map((edu, index) => (
-                        <div key={index} className="p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
+                        <div key={index} className="content-card">
                             <p className="font-bold text-lg text-blue-600 dark:text-blue-400">{edu.degree}</p>
                             <p className="text-slate-700 dark:text-slate-300">{edu.institution} ({edu.period})</p>
                             <p className="text-sm text-slate-500 dark:text-slate-400">{edu.details}</p>
@@ -589,7 +656,7 @@ const CVPage = () => (
                 <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
                     {experienceData.map((exp, index) => (
                         <div key={index} className="relative pl-12">
-                            <div className="absolute left-0 top-1 w-5 h-5 bg-blue-500 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+                            <div className="absolute left-0 top-1 w-5 h-5 bg-blue-500 rounded-full border-4 border-white dark:border-slate-900"></div>
                             <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">{exp.title}</p>
                             <p className="text-md text-slate-700 dark:text-slate-300">{exp.institution}</p>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{exp.period}</p>
@@ -603,7 +670,7 @@ const CVPage = () => (
                  <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
                     {awardsData.map((award, index) => (
                          <div key={index} className="relative pl-12">
-                            <div className="absolute left-0 top-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+                            <div className="absolute left-0 top-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white dark:border-slate-900"></div>
                             <p className="font-semibold text-xl text-emerald-600 dark:text-emerald-400">{award.title}</p>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{award.year}</p>
                             <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{award.description}</p>
@@ -644,7 +711,7 @@ const SimulationsPage = ({ isDarkMode }) => (
 
 const BlogPage = () => (
     <PageWrapper title="Papers & Articles">
-        <div className="space-y-8">{blogPosts.map((post, index) => (<div key={index} className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg shadow-md transition-transform hover:scale-[1.02]"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{post.title}</h3><div className="flex flex-wrap gap-2 my-2">{post.tags.map(tag => <span key={tag} className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full">{tag}</span>)}</div><p className="text-slate-600 dark:text-slate-300 my-4">{post.summary}</p><a href={post.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400">Read Paper &rarr;</a></div>))}</div>
+        <div className="space-y-8">{blogPosts.map((post, index) => (<a href={post.link} target="_blank" rel="noopener noreferrer" key={index} className="block content-card"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{post.title}</h3><div className="flex flex-wrap gap-2 my-2">{post.tags.map(tag => <span key={tag} className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full">{tag}</span>)}</div><p className="text-slate-600 dark:text-slate-300 my-4">{post.summary}</p><div className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400">Read Paper &rarr;</div></a>))}</div>
     </PageWrapper>
 );
 
@@ -657,7 +724,7 @@ const GalleryPage = () => (
 
 const ContactPage = () => (
     <PageWrapper title="Contact">
-        <div className="p-8 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
+        <div className="content-card text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
     </PageWrapper>
 );
 
@@ -686,26 +753,52 @@ export default function App() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-200 font-sans transition-colors duration-300">
-      <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-md">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="text-xl font-bold text-slate-800 dark:text-slate-200"><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }}>Samriddha Ganguly</a></div>
-            <nav className="hidden md:flex items-center space-x-1">
-              {navLinks.map(link => (<a key={link.id} href={`#${link.id}`} onClick={(e) => { e.preventDefault(); setPage(link.id); }} className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${ page === link.id ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' }`}>{link.title}</a>))}
-              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">{isDarkMode ? <Sun size={20} /> : <Moon size={20} />}</button>
-            </nav>
-            <div className="md:hidden flex items-center">
-                <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 mr-2">{isDarkMode ? <Sun size={20} /> : <Moon size={20} />}</button>
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">{isMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+    <div className="relative min-h-screen bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-sans transition-colors duration-300">
+      <div className="relative z-10">
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-md">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="text-xl font-bold text-slate-800 dark:text-slate-200"><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }}>Samriddha's Quantum Realm</a></div>
+              <nav className="hidden md:flex items-center space-x-1">
+                {navLinks.map(link => (<a key={link.id} href={`#${link.id}`} onClick={(e) => { e.preventDefault(); setPage(link.id); }} className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${ page === link.id ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' }`}>{link.title}</a>))}
+                <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">{isDarkMode ? <Sun size={20} /> : <Moon size={20} />}</button>
+              </nav>
+              <div className="md:hidden flex items-center">
+                  <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 mr-2">{isDarkMode ? <Sun size={20} /> : <Moon size={20} />}</button>
+                  <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">{isMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+              </div>
             </div>
           </div>
-        </div>
-        {isMenuOpen && (<div className="md:hidden animate-fade-in-down"><nav className="px-2 pt-2 pb-3 space-y-1 sm:px-3">{navLinks.map(link => (<a key={link.id} href={`#${link.id}`} onClick={(e) => { e.preventDefault(); setPage(link.id); setIsMenuOpen(false); }} className={`block px-3 py-2 rounded-md text-base font-medium ${ page === link.id ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' }`}>{link.title}</a>))}</nav></div>)}
-      </header>
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">{renderPage()}</main>
-      <footer className="bg-slate-100 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 mt-12"><div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-slate-500 dark:text-slate-400"><p>&copy; {new Date().getFullYear()} Samriddha Ganguly. All rights reserved.</p><p className="text-sm mt-1">Built with React, Tailwind CSS, and Plotly.js.</p></div></footer>
-      <style>{` @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } } @keyframes fade-in-down { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } } .animate-fade-in-up { animation: fade-in-up 0.5s ease-out forwards; } .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; } `}</style>
+          {isMenuOpen && (<div className="md:hidden animate-fade-in-down"><nav className="px-2 pt-2 pb-3 space-y-1 sm:px-3">{navLinks.map(link => (<a key={link.id} href={`#${link.id}`} onClick={(e) => { e.preventDefault(); setPage(link.id); setIsMenuOpen(false); }} className={`block px-3 py-2 rounded-md text-base font-medium ${ page === link.id ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' }`}>{link.title}</a>))}</nav></div>)}
+        </header>
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">{renderPage()}</main>
+        <footer className="bg-slate-100 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 mt-12"><div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-slate-500 dark:text-slate-400"><p>&copy; {new Date().getFullYear()} Samriddha Ganguly. All rights reserved.</p><p className="text-sm mt-1">Built with React, Tailwind CSS, and Plotly.js.</p></div></footer>
+      </div>
+      <style>{`
+        .interest-card, .content-card, .simulation-card {
+            background-color: rgba(241, 245, 249, 0.8);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 1);
+            backdrop-filter: blur(4px);
+        }
+        .dark .interest-card, .dark .content-card, .dark .simulation-card {
+            background-color: rgba(30, 41, 59, 0.5);
+            border-color: rgba(51, 65, 85, 1);
+        }
+        .interest-card:hover, .content-card:hover, .simulation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        .dark .interest-card:hover, .dark .content-card:hover, .dark .simulation-card:hover {
+             box-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
+        }
+        .page-title-glow {
+             text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+        }
+      `}</style>
     </div>
   );
 }
