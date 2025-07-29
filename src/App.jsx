@@ -22,12 +22,53 @@ const blogPosts = [
 
 
 const galleryItems = [
-    { src: "/magnon-bands.png", caption: "Topologically gapped magnon bands with DMI." },
-    { src: "/spin-wave.png", caption: "Dispersion of a 1D Ferromagnetic Spin Wave." },
-    { src: "/ssh-model.png", caption: "Dispersion of the SSH Model (Topological Phase)." },
-    { src: "/quantum-circuit.jpg", caption: "Diagram of a Quantum Computing Circuit." },
+    { src: "/IISC.png", caption: "Indian Institute of Science, Bengaluru" },
+    { src: "/GROUPS.png", caption: "Who says Physics people do not do Math?" },
+    { src: "/GMRT.png", caption: "GMRT during RAWS December 2023" },
+    { src: "/NCRA.png", caption: "NCRA-TIFR Main Building, Pune" },
+];
+// --- New Data for Experience and Awards ---
+const experienceData = [
+  {
+    title: "Summer Research Intern",
+    institution: "Indian Institute of Science Education and Research, Bhopal",
+    period: "June 2025 - Present",
+    description: "Studying the classification of topological quantum matter with symmetries under Dr. Nirmal Ganguli. Focusing on using spin-space groups to study topological magnons and characterizing symmetry-enforced constraints on magnon bands."
+  },
+  {
+    title: "TCS Research and Innovation Fellow",
+    institution: "TCS Innovation Labs, IIT Kharagpur Research Park",
+    period: "May 2025 - July 2025",
+    description: "Worked in the Acoustic and Quantum Sensing Lab on industry-related problems, gaining valuable industrial R&D exposure."
+  },
+  {
+    title: "UC Berkeley REYES Research Fellow",
+    institution: "Temple University (Remote)",
+    period: "July 2024 - August 2024",
+    description: "Worked under Dr. Martha Constantinou on the project 'Internal structure of hadrons from numerical simulations of Quantum Chromodynamics', analyzing data to obtain the energy spectrum of the kaon."
+  },
+  {
+    title: "INSA-IASC-NASI Summer Research Fellow",
+    institution: "Indian Institute of Science, Bengaluru",
+    period: "May 2024 - July 2024",
+    description: "Selected by the Indian Academy of Sciences to work under Dr. Arvind Ayyer. Project involved the theoretical background of Markov Chain Monte Carlo simulations, specifically applied to the 1D Ising Model."
+  },
+  {
+    title: "RAWS Winter Scholar",
+    institution: "IUCAA-NCRA TIFR, Pune",
+    period: "December 2023",
+    description: "Attended the Radio Astronomy Winter School (RAWS) 2023, learning the basics of Radio Astronomy with hands-on experiments."
+  }
 ];
 
+const awardsData = [
+  { year: "2025", title: "TCS Research and Innovation Fellowship", description: "Received to carry out a research internship at TCS Innovation Labs, IIT Kharagpur Research Park." },
+  { year: "2024", title: "INSA-IASC-NASI Summer Research Fellowship", description: "Selected by the Indian Academy of Sciences' prestigious summer research program." },
+  { year: "2023", title: "CNR Rao Education Foundation Prize", description: "Awarded by the Director of IISER Bhopal for achieving the Highest CPI (9.94/10) in the first semester." },
+  { year: "2022", title: "DST INSPIRE FELLOW", description: "Awarded by the Department of Science & Technology, Govt. of India, for being in the top 1% of board rankers." },
+  { year: "2022", title: "Academic Excellence Award", description: "Honoured by the Hon'ble Chief Minister of West Bengal for achieving AIR 5 in the ISC Class XII Examination." },
+  { year: "2020", title: "JBNSTS Junior Fellow", description: "Awarded for qualifying the Jagadis Bose National Science Talent Search Examination." }
+];
 // --- Thematic SVG Icons ---
 const SpinLatticeIcon = () => (
   <svg width="100%" height="100%" viewBox="0 0 100 100" className="stroke-current">
@@ -368,8 +409,8 @@ const HomePage = () => (
             </p>
             <div className="mt-8 flex justify-center gap-4">
                 <a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail size={20} /></a>
-                <a href="https://github.com/SamriddhaGanguly" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github size={20} /></a>
-                <a href="https://www.linkedin.com/in/samriddha-ganguly/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin size={20} /></a>
+                <a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github size={20} /></a>
+                <a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin size={20} /></a>
                 <a href="tel:+919830606317" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Phone size={20} /></a>
             </div>
         </div>
@@ -412,9 +453,63 @@ const ResearchPage = () => (
 
 const CVPage = () => (
     <PageWrapper title="Curriculum Vitae">
-        <div className="space-y-8">
-            <div><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">Education</h3><div className="space-y-4">{cvData.education.map((edu, index) => (<div key={index} className="p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg"><p className="font-bold text-lg text-blue-600 dark:text-blue-400">{edu.degree}</p><p className="text-slate-700 dark:text-slate-300">{edu.institution} ({edu.period})</p><p className="text-sm text-slate-500 dark:text-slate-400">{edu.details}</p></div>))}</div></div>
-            <div><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">Relevant Coursework</h3><div className="flex flex-wrap gap-2">{cvData.coursework.map((course, index) => (<span key={index} className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-blue-900/50 dark:text-blue-200">{course}</span>))}</div></div>
+        <div className="space-y-12">
+            {/* Education Section */}
+            <div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Education</h3>
+                <div className="space-y-4">
+                    {cvData.education.map((edu, index) => (
+                        <div key={index} className="p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
+                            <p className="font-bold text-lg text-blue-600 dark:text-blue-400">{edu.degree}</p>
+                            <p className="text-slate-700 dark:text-slate-300">{edu.institution} ({edu.period})</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">{edu.details}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Research Experience Section */}
+            <div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Research Experience</h3>
+                <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
+                    {experienceData.map((exp, index) => (
+                        <div key={index} className="relative pl-12">
+                            <div className="absolute left-0 top-1 w-5 h-5 bg-blue-500 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+                            <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">{exp.title}</p>
+                            <p className="text-md text-slate-700 dark:text-slate-300">{exp.institution}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{exp.period}</p>
+                            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{exp.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Awards Section */}
+            <div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Awards & Honours</h3>
+                 <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
+                    {awardsData.map((award, index) => (
+                         <div key={index} className="relative pl-12">
+                            <div className="absolute left-0 top-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+                            <p className="font-semibold text-xl text-emerald-600 dark:text-emerald-400">{award.title}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{award.year}</p>
+                            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{award.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Coursework Section */}
+            <div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Relevant Coursework</h3>
+                <div className="flex flex-wrap gap-2">
+                    {cvData.coursework.map((course, index) => (
+                        <span key={index} className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-blue-900/50 dark:text-blue-200">
+                            {course}
+                        </span>
+                    ))}
+                </div>
+            </div>
         </div>
     </PageWrapper>
 );
@@ -434,7 +529,7 @@ const SimulationsPage = ({ isDarkMode }) => (
 );
 
 const BlogPage = () => (
-    <PageWrapper title="Blog & Articles">
+    <PageWrapper title="Papers & Articles">
         <div className="space-y-8">{blogPosts.map((post, index) => (<div key={index} className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg shadow-md transition-transform hover:scale-[1.02]"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{post.title}</h3><div className="flex flex-wrap gap-2 my-2">{post.tags.map(tag => <span key={tag} className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full">{tag}</span>)}</div><p className="text-slate-600 dark:text-slate-300 my-4">{post.summary}</p><a href={post.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400">Read Paper &rarr;</a></div>))}</div>
     </PageWrapper>
 );
