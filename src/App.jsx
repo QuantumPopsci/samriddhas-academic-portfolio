@@ -590,7 +590,7 @@ const HomePage = () => (
                 Samriddha's Quantum Realm
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
-                An undegrad at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
+                An undergrad at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
             </p>
             <div className="mt-8 flex justify-center gap-4">
                 <a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail size={20} /></a>
