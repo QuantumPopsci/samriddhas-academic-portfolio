@@ -814,17 +814,56 @@ const PDFBookViewer = ({ file, title, onBack }) => {
     );
 };
 
+// --- NEW: Notes Page Component with Simple PDF Viewer ---
+
+const SimplePDFViewer = ({ file, title, onBack }) => {
+    const [numPages, setNumPages] = useState(null);
+
+    function onDocumentLoadSuccess({ numPages }) {
+        setNumPages(numPages);
+    }
+
+    return (
+        <div className="animate-fade-in-up">
+            <div className="flex justify-between items-center mb-4">
+                <button onClick={onBack} className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg font-semibold transition-colors">
+                    <ArrowLeft size={20} /> Back to Notes
+                </button>
+                <h3 className="text-xl font-bold text-center text-slate-800 dark:text-slate-200 truncate hidden sm:block">{title}</h3>
+                <span className="font-mono text-slate-600 dark:text-slate-400">
+                    Total Pages: {numPages || '...'}
+                </span>
+            </div>
+
+            {/* Simple Scrollable Container */}
+            <div className="h-[80vh] overflow-y-auto bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 sm:p-4 flex justify-center">
+                <Document file={file} onLoadSuccess={onDocumentLoadSuccess} loading={<div className="text-center p-8">Loading PDF...</div>}>
+                   {Array.from(new Array(numPages || 0), (el, index) => (
+                        <Page
+                            key={`page_${index + 1}`}
+                            pageNumber={index + 1}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                            className="mb-4 shadow-lg"
+                        />
+                    ))}
+                </Document>
+            </div>
+        </div>
+    );
+};
+
 
 const NotesPage = () => {
     const [selectedNote, setSelectedNote] = useState(null);
 
     if (selectedNote) {
-        return <PDFBookViewer file={selectedNote.file} title={selectedNote.title} onBack={() => setSelectedNote(null)} />;
+        return <SimplePDFViewer file={selectedNote.file} title={selectedNote.title} onBack={() => setSelectedNote(null)} />;
     }
 
     return (
         <PageWrapper title="Course Notes">
-             <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">A collection of my personal notes from various courses. Click on a card to open the notes in a book-style reader.</p>
+             <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">A collection of my personal notes from various courses. Click on a card to open the notes.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {notesData.map((note, index) => (
                     <button key={index} onClick={() => setSelectedNote(note)} className="interest-card text-left">
@@ -910,21 +949,7 @@ const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Rese
              text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
         }
         /* Add this inside your existing <style> tag at the end of the file */
-.book-spread-container {
-    background-image: linear-gradient(to right, 
-        rgba(0,0,0,0) 49.5%, 
-        rgba(0,0,0,0.15) 50%, 
-        rgba(0,0,0,0) 50.5%
-    );
-}
-.dark .book-spread-container {
-     background-image: linear-gradient(to right, 
-        rgba(0,0,0,0) 49.5%, 
-        rgba(0,0,0,0.5) 50%, 
-        rgba(0,0,0,0) 50.5%
-    );
-
-      `}</style>
+ `}</style>
     </div>
   );
 }
