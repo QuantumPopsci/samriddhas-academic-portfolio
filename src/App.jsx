@@ -27,13 +27,13 @@ const notesData = [
     {
         title: "PHY 642: Special Topics in Quantum Mechanics Notes",
         description: "Advanced Quantum Mechanics",
-        file: "/PHY_642__Special_Topics_in_Quantum_Mechanics_1.pdf", // Make sure this file exists in /public/notes/
+        file: "/notes/PHY_642__Special_Topics_in_Quantum_Mechanics_1.pdf", // Make sure this file exists in /public/notes/
         icon: <Atom className="w-16 h-16" strokeWidth={1.5} />
     },
     {
         title: "PHY 637: Decoherence and Open Quantum Systems Notes",
         description: "Quantum Master Equations and Quantum Optics",
-        file: "/PHY_637__Decoherence_and_Open_Quantum_Systems_Notes_1.pdf", // Make sure this file exists in /public/notes/
+        file: "/notes/PHY_637__Decoherence_and_Open_Quantum_Systems_Notes_1.pdf", // Make sure this file exists in /public/notes/
         icon: <Waves className="w-16 h-16" strokeWidth={1.5} />
     }
 ];
