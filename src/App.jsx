@@ -1,7 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
-import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves } from 'lucide-react';
+import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
 
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 // --- Helper Data ---
 const cvData = {
   education: [
@@ -19,7 +23,20 @@ const blogPosts = [
   { title: "Quantum magnonics: when magnon spintronics meets quantum information science", summary: "Exploring the highly interdisciplinary field of quantum magnonics, which combines spintronics, quantum optics and quantum information, this gives an overview of the recent developments concerning the quantum states of magnons and their hybridization with mature quantum platforms.", link: "https://arxiv.org/abs/2111.14241", tags: ["Magnonics", "Quantum Matter", "Quantum Information"] },
   { title: "Quantum Decoherence", summary: "Exploring the paradigm of Quantum to Classical Transition, this paper is a pedagogical overview of Decoherence in Quantum Systems", link: "https://arxiv.org/abs/1911.06282", tags: ["Quantum Decoherence", "Quantum Master Equations", "Quantum Information"] }
 ];
-
+const notesData = [
+    {
+        title: "PHY 642: Special Topics in Quantum Mechanics Notes",
+        description: "Advanced Quantum Mechanics",
+        file: "/PHY_642__Special_Topics_in_Quantum_Mechanics_1.pdf", // Make sure this file exists in /public/notes/
+        icon: <Atom className="w-16 h-16" strokeWidth={1.5} />
+    },
+    {
+        title: "PHY 637: Decoherence and Open Quantum Systems Notes",
+        description: "Quantum Master Equations and Quantum Optics",
+        file: "/PHY_637__Decoherence_and_Open_Quantum_Systems_Notes_1.pdf", // Make sure this file exists in /public/notes/
+        icon: <Waves className="w-16 h-16" strokeWidth={1.5} />
+    }
+];
 const galleryItems = [
     { src: "/IISC", caption: "Indian Institute of Science, Bengaluru" },
     { src: "/GROUPS", caption: "Who says Physics people do not do Math?" },
@@ -727,7 +744,100 @@ const ContactPage = () => (
         <div className="content-card text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
     </PageWrapper>
 );
+// --- NEW: Notes Page Component with PDF Book Viewer ---
 
+const PDFBookViewer = ({ file, title, onBack }) => {
+    const [numPages, setNumPages] = useState(null);
+    const [pageNumber, setPageNumber] = useState(1); // Current page spread starts at page 1
+    const [containerWidth, setContainerWidth] = useState(0);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (containerRef.current) {
+                setContainerWidth(containerRef.current.offsetWidth);
+            }
+        };
+        window.addEventListener('resize', updateWidth);
+        updateWidth();
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
+
+    function onDocumentLoadSuccess({ numPages }) {
+        setNumPages(numPages);
+        setPageNumber(1);
+    }
+
+    const goToPrevPage = () => setPageNumber(prev => Math.max(1, prev - 2));
+    const goToNextPage = () => setPageNumber(prev => (prev + 2 > numPages ? prev : prev + 2));
+
+    // Calculate page width for a two-page spread, considering spacing
+    const pageWidth = containerWidth ? (containerWidth / 2) - 10 : null;
+
+    return (
+        <div className="animate-fade-in-up">
+            <div className="flex justify-between items-center mb-6">
+                <button onClick={onBack} className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg font-semibold transition-colors">
+                    <ArrowLeft size={20} /> Back to Notes
+                </button>
+                <h3 className="text-xl font-bold text-center text-slate-800 dark:text-slate-200 truncate hidden sm:block">{title}</h3>
+                <div className="flex items-center gap-2">
+                    <button onClick={goToPrevPage} disabled={pageNumber <= 1} className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <ChevronLeft size={24} />
+                    </button>
+                     <span className="font-mono text-slate-600 dark:text-slate-400 w-24 text-center">
+                        {pageNumber} / {numPages || '...'}
+                    </span>
+                    <button onClick={goToNextPage} disabled={pageNumber + 1 >= numPages} className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <ChevronRight size={24} />
+                    </button>
+                </div>
+            </div>
+
+            <div ref={containerRef} className="bg-slate-200 dark:bg-slate-800 p-2 sm:p-4 rounded-lg shadow-2xl book-spread-container">
+                <Document file={file} onLoadSuccess={onDocumentLoadSuccess} loading={<div className="text-center p-8">Loading PDF...</div>}>
+                    <div className="flex justify-center items-start gap-1 sm:gap-2 transition-all duration-500 ease-in-out">
+                       {/* Left Page */}
+                        <div className="bg-white shadow-lg relative" style={{ width: pageWidth ? 'auto' : '50%' }}>
+                           <Page pageNumber={pageNumber} width={pageWidth} renderAnnotationLayer={false} />
+                        </div>
+                        {/* Right Page */}
+                        {pageNumber + 1 <= numPages && (
+                             <div className="bg-white shadow-lg relative" style={{ width: pageWidth ? 'auto' : '50%' }}>
+                                <Page pageNumber={pageNumber + 1} width={pageWidth} renderAnnotationLayer={false}/>
+                            </div>
+                        )}
+                    </div>
+                </Document>
+            </div>
+        </div>
+    );
+};
+
+
+const NotesPage = () => {
+    const [selectedNote, setSelectedNote] = useState(null);
+
+    if (selectedNote) {
+        return <PDFBookViewer file={selectedNote.file} title={selectedNote.title} onBack={() => setSelectedNote(null)} />;
+    }
+
+    return (
+        <PageWrapper title="Course Notes">
+             <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">A collection of my personal notes from various courses. Click on a card to open the notes in a book-style reader.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {notesData.map((note, index) => (
+                    <button key={index} onClick={() => setSelectedNote(note)} className="interest-card text-left">
+                        <div className="text-blue-500 mb-4">{note.icon}</div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{note.title}</h3>
+                        <p className="mt-2 text-slate-600 dark:text-slate-300">{note.description}</p>
+                        <div className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 mt-4">Read Notes &rarr;</div>
+                    </button>
+                ))}
+            </div>
+        </PageWrapper>
+    );
+};
 
 // --- Main App Component ---
 export default function App() {
@@ -737,8 +847,8 @@ export default function App() {
 
   useEffect(() => { document.documentElement.classList.toggle('dark', isDarkMode); }, [isDarkMode]);
 
-  const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Research' }, { id: 'cv', title: 'CV' }, { id: 'simulations', title: 'Simulations' }, { id: 'blog', title: 'Resources' }, { id: 'gallery', title: 'Gallery' }, { id: 'contact', title: 'Contact' } ];
-
+  // In the App component, find navLinks and replace it with this:
+const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Research' }, { id: 'cv', title: 'CV' }, { id: 'simulations', title: 'Simulations' }, { id: 'blog', title: 'Resources' }, { id: 'notes', title: 'Notes' }, { id: 'gallery', title: 'Gallery' }, { id: 'contact', title: 'Contact' } ];
   const renderPage = () => {
     switch (page) {
       case 'home': return <HomePage />;
@@ -746,6 +856,7 @@ export default function App() {
       case 'cv': return <CVPage />;
       case 'simulations': return <SimulationsPage isDarkMode={isDarkMode} />;
       case 'blog': return <BlogPage />;
+      case 'notes': return <NotesPage />;
       case 'gallery': return <GalleryPage />;
       case 'contact': return <ContactPage />;
       default: return <HomePage />;
@@ -798,6 +909,21 @@ export default function App() {
         .page-title-glow {
              text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
         }
+        /* Add this inside your existing <style> tag at the end of the file */
+.book-spread-container {
+    background-image: linear-gradient(to right, 
+        rgba(0,0,0,0) 49.5%, 
+        rgba(0,0,0,0.15) 50%, 
+        rgba(0,0,0,0) 50.5%
+    );
+}
+.dark .book-spread-container {
+     background-image: linear-gradient(to right, 
+        rgba(0,0,0,0) 49.5%, 
+        rgba(0,0,0,0.5) 50%, 
+        rgba(0,0,0,0) 50.5%
+    );
+
       `}</style>
     </div>
   );
