@@ -604,7 +604,7 @@ const HomePage = () => (
         <div className="relative text-center py-12 md:py-20 z-10 overflow-hidden rounded-lg">
             <div className="absolute inset-0 -z-10"><WaveAnimation /></div>
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Samriddha's Quantum Realm
+                Samriddha's Academic Portfolio
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
                 An undergrad at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
@@ -620,8 +620,8 @@ const HomePage = () => (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <a href="https://www.nature.com/articles/nature23268" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-blue-500"><Atom className="w-full h-full" strokeWidth={1.5}/></div>
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Materials</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Investigating electronic and magnetic properties in novel materials.</p>
+                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Topological Quantum Matter</h3>
+                <p className="mt-2 text-slate-600 dark:text-slate-300">Investigating electronic and magnetic properties in Topological materials.</p>
             </a>
              <a href="https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.88.041002" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-emerald-500"><SpinLatticeIcon /></div>
@@ -630,8 +630,8 @@ const HomePage = () => (
             </a>
              <a href="https://qiskit.org/textbook/what-is-quantum.html" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-purple-500"><QubitIcon /></div>
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Computation</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Harnessing quantum phenomena for fault-tolerant information processing.</p>
+                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Exotic Superconductivity</h3>
+                <p className="mt-2 text-slate-600 dark:text-slate-300">Exploring the field of Topological Superconductors and the newly theorized interplay of Altermagnetism and Superconductivity</p>
             </a>
              <a href="http://www-personal.umich.edu/~mejn/cp/" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-rose-500"><BrainCircuit className="w-full h-full" strokeWidth={1.5}/></div>
