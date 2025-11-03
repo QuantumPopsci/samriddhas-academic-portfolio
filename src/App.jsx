@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
-import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -8,12 +8,12 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 // --- Helper Data ---
 const cvData = {
-  education: [
-    { degree: "BS-MS Dual Degree, Physics Major", institution: "Indian Institute of Science Education and Research (IISER) Bhopal", period: "2022 - 2027 (Expected)", details: "CGPA: 9.5/10 (equivalent to 3.85/4.0)" },
-    { degree: "Higher Secondary (XII)", institution: "St. Xavier’s Institution, Panihati", period: "2022", details: "Percentage: 98.75%" },
-    { degree: "Secondary (X)", institution: "St. Xavier’s Institution, Panihati", period: "2020", details: "Percentage: 98%" }
-  ],
-  coursework: [ 'Introduction to Quantum Physics', 'Quantum Mechanics I', 'Advanced Quantum Mechanics', 'Statistical Mechanics', 'Numerical Methods in Programming', 'Wave and Optics', 'Electromagnetism', 'Classical Mechanics', 'General Properties of Matter', 'Physics through Computational Thinking', 'Classical Thermodynamics', 'Basic Electronics', 'Introduction to Programming', 'Linear Algebra', 'Complex Variables', 'Probability and Statistics', 'Multivariable Calculus', 'Groups and Symmetry', 'Real Analysis', 'Mathematical Methods for Physicists', 'Basic Physical Chemistry' ]
+  education: [
+    { degree: "BS-MS Dual Degree, Physics Major", institution: "Indian Institute of Science Education and Research (IISER) Bhopal", period: "2022 - 2027 (Expected)", details: "CGPA: 3.8/4.0" },
+    { degree: "Higher Secondary (XII)", institution: "St. Xavier’s Institution, Kolkata", period: "2020 - 2022", details: "Percentage: 98.75%" },
+    { degree: "Secondary (X)", institution: "St. Xavier’s Institution, Kolkata", period: "2011 - 2020", details: "Percentage: 98%" }
+  ],
+  coursework: [ 'Introduction to Quantum Physics', 'Quantum Mechanics I', 'Advanced Quantum Mechanics', 'Statistical Mechanics', 'Numerical Methods in Programming', 'Wave and Optics', 'Electromagnetism', 'Classical Mechanics', 'General Properties of Matter', 'Physics through Computational Thinking', 'Classical Thermodynamics', 'Basic Electronics', 'Linear Algebra', 'Complex Variables', 'Probability and Statistics', 'Multivariable Calculus', 'Groups and Symmetry', 'Real Analysis', 'Mathematical Methods for Physicists' ]
 };
 
 const blogPosts = [
@@ -45,47 +45,70 @@ const galleryItems = [
 ];
 
 const experienceData = [
-  {
-    title: "Summer Research Intern",
-    institution: "Indian Institute of Science Education and Research, Bhopal",
-    period: "June 2025 - Present",
-    description: "Studying the classification of topological quantum matter with symmetries under Dr. Nirmal Ganguli. Focusing on using spin-space groups to study topological magnons and characterizing symmetry-enforced constraints on magnon bands."
-  },
-  {
-    title: "TCS Research and Innovation Fellow",
-    institution: "TCS Innovation Labs, IIT Kharagpur Research Park",
-    period: "May 2025 - July 2025",
-    description: "Worked in the Acoustic and Quantum Sensing Lab on industry-related problems, gaining valuable industrial R&D exposure."
-  },
-  {
-    title: "UC Berkeley REYES Research Fellow",
-    institution: "Temple University (Remote)",
-    period: "July 2024 - August 2024",
-    description: "Worked under Dr. Martha Constantinou on the project 'Internal structure of hadrons from numerical simulations of Quantum Chromodynamics', analyzing data to obtain the energy spectrum of the kaon."
-  },
-  {
-    title: "INSA-IASC-NASI Summer Research Fellow",
-    institution: "Indian Institute of Science, Bengaluru",
-    period: "May 2024 - July 2024",
-    description: "Selected by the Indian Academy of Sciences to work under Dr. Arvind Ayyer. Project involved the theoretical background of Markov Chain Monte Carlo simulations, specifically applied to the 1D Ising Model."
-  },
-  {
-    title: "RAWS Winter Scholar",
-    institution: "IUCAA-NCRA TIFR, Pune",
-    period: "December 2023",
-    description: "Attended the Radio Astronomy Winter School (RAWS) 2023, learning the basics of Radio Astronomy with hands-on experiments."
-  }
+  {
+    title: "Research Intern",
+    institution: "Indian Institute of Science Education and Research, Bhopal",
+    period: "June 2025 - Oct 2025",
+    description: "Studied the classification of topological quantum matter with symmetries under Dr. Nirmal Ganguli. Conducted a theoretical analysis of symmetry-protected topological Dirac nodal line (DNL) magnonic phases in layered honeycomb collinear antiferromagnets, including the effects of Interlayer Spin Canting Interactions. Work accepted for a poster presentation."
+  },
+  {
+    title: "TCS Research and Innovation Fellow",
+    institution: "TCS Innovation Labs, IIT Kharagpur Research Park",
+    period: "May 2025 - July 2025",
+    description: "Worked in the Acoustic and Quantum Sensing Lab on industry-related R&D problems, gaining exposure to optimizing the workings of Mills and Pipelines."
+  },
+  {
+    title: "UC Berkeley REYES Research Fellow",
+    institution: "Temple University (Remote)",
+    period: "July 2024 - August 2024",
+    description: "Worked under Dr. Martha Constantinou on the project 'Internal structure of hadrons from numerical simulations of Quantum Chromodynamics'."
+  },
+  {
+    title: "INSA-IASC-NASI Summer Research Fellow",
+    institution: "Indian Institute of Science, Bengaluru",
+    period: "May 2024 - July 2024",
+    description: "Selected for the prestigious fellowship to work under Dr. Arvind Ayyer. Project focused on the theoretical background of Markov Processes, particularly using MCMC to simulate the 1D Ising Model."
+  },
+  {
+    title: "RAWS Winter Scholar",
+    institution: "IUCAA-NCRA TIFR, Pune",
+    period: "December 2023",
+    description: "Attended the Radio Astronomy Winter School (RAWS) 2023, learning the basics of Radio Astronomy with hands-on experiments using radio observation equipment."
+  }
 ];
 
 const awardsData = [
-  { year: "2025", title: "TCS Research and Innovation Fellowship", description: "Received to carry out a research internship at TCS Innovation Labs, IIT Kharagpur Research Park." },
-  { year: "2024", title: "INSA-IASC-NASI Summer Research Fellowship", description: "Selected by the Indian Academy of Sciences' prestigious summer research program." },
-  { year: "2023", title: "CNR Rao Education Foundation Prize", description: "Awarded by the Director of IISER Bhopal for achieving the Highest CPI (9.94/10) in the first semester." },
-  { year: "2022", title: "DST INSPIRE FELLOW", description: "Awarded by the Department of Science & Technology, Govt. of India, for being in the top 1% of board rankers." },
-  { year: "2022", title: "Academic Excellence Award", description: "Honoured by the Hon'ble Chief Minister of West Bengal for achieving AIR 5 in the ISC Class XII Examination." },
-  { year: "2020", title: "JBNSTS Junior Fellow", description: "Awarded for qualifying the Jagadis Bose National Science Talent Search Examination." }
+  { year: "2025", title: "TCS Research and Innovation Fellowship", description: "Received to carry out a research internship at TCS Innovation Labs, IIT Kharagpur Research Park." },
+  { year: "2024", title: "INSA-IASC-NASI Summer Research Fellowship", description: "Selected by the Indian Academy of Sciences' prestigious summer research program." },
+  { year: "2023", title: "CNR Rao Education Foundation Prize", description: "Awarded by the Hon'ble Director of IISER Bhopal for having the Highest CPI in the First Semester of First Year of degree." },
+  { year: "2022", title: "DST INSPIRE FELLOW", description: "Awarded by the Department of Science & Technology, Govt. of India, for being in the top 1% of board rankers." },
+  { year: "2022", title: "Academic Excellence in Higher Secondary Examination", description: "Received award from Hon'ble Chief Minister of West Bengal for achieving AIR 5 in HS Examination." },
+  { year: "2020", title: "JBNSTS Junior Fellow", description: "Awarded for qualifying the Jagadis Bose National Science Talent Search Examination." }
+];
+// --- NEW CV SECTIONS DATA ---
+const initiativesData = [
+  { 
+    title: "open_board: An Interdisciplinary Knowledge-Sharing Initiative", 
+    role: "Co-Founder & Lead Developer", 
+    description: "Conceptualized and developed a peer-to-peer platform for students to present projects and research to a non-specialist, interdisciplinary audience in fun and engaging live sessions." 
+  },
+  { 
+    title: "A Hitchhiker's Guide to Physics @ IISERB", 
+    role: "Lead Developer", 
+    description: "Built a comprehensive website for the physics department to centralize academic resources, featuring course guides and timetable and a platform for sharing notes and a secure, domain-restricted (@iiserb.ac.in) forum for discussions." 
+  }
 ];
 
+const positionsData = [
+  { role: "Secretary, Science Council, IISER Bhopal", period: "2024-2025" },
+  { role: "Peer Counselor, Counselling Cell, IISER Bhopal", period: "2023-2024" },
+  { role: "Departmental Representative, Dept. of Mathematics, IISER Bhopal", period: "2023-2024" },
+  { role: "Math Circle Volunteer, Math Circle, IISER Bhopal.", period: "2023-2024" },
+  { role: "Student Mentor, Student Development Council, IISER Bhopal", period: "2023-Pres." },
+  { role: "Quiz Club Core Committee Member", period: "2023-Pres." },
+  { role: "Movie Club Core Committee Member", period: "2023-2024" },
+  { role: "Enthuzia '23 (Annual Cultural Fest) Social Media Associate", period: "2023-2024" }
+];
 // --- Thematic SVG Icons ---
 
 const CooperPairIcon = () => (
@@ -623,7 +646,7 @@ const HomePage = () => (
                 Samriddha's Academic Portfolio
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
-                An undergrad at IISER Bhopal exploring the frontiers of theoretical condensed matter, from topological materials to quantum computation.
+                A fourth-year Physics undergrad at IISER Bhopal. My research interests lie in theoretical condensed matter, particularly in altermagnetic systems, exotic superconductivity, and engineering topological phases for quantum information.
             </p>
             <div className="mt-8 flex justify-center gap-4">
                 <a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail size={20} /></a>
@@ -670,60 +693,158 @@ const ResearchPage = () => (
 );
 
 const CVPage = () => (
-    <PageWrapper title="Curriculum Vitae">
-        <div className="space-y-12">
-            <div>
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Education</h3>
-                <div className="space-y-4">
-                    {cvData.education.map((edu, index) => (
-                        <div key={index} className="content-card">
-                            <p className="font-bold text-lg text-blue-600 dark:text-blue-400">{edu.degree}</p>
-                            <p className="text-slate-700 dark:text-slate-300">{edu.institution} ({edu.period})</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">{edu.details}</p>
-                        </div>
-                    ))}
-                </div>
+  <PageWrapper title="Curriculum Vitae">
+    {/* --- Download Button --- */}
+    <div className="flex justify-center mb-10">
+      <a
+        href="/Samriddha_Ganguly_CV.pdf"
+        download="Samriddha_Ganguly_CV.pdf"
+        className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300 transform hover:-translate-y-0.5"
+      >
+        <Download size={20} />
+        Click for Detailed CV
+      </a>
+    </div>
+
+    <div className="space-y-16">
+      {/* --- Education Section --- */}
+      <div>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Education
+        </h3>
+        <div className="space-y-4">
+          {cvData.education.map((edu, index) => (
+            <div key={index} className="content-card">
+              <p className="font-bold text-lg text-blue-600 dark:text-blue-400">
+                {edu.degree}
+              </p>
+              <p className="text-slate-700 dark:text-slate-300">
+                {edu.institution} ({edu.period})
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {edu.details}
+              </p>
             </div>
-            <div>
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Research Experience</h3>
-                <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
-                    {experienceData.map((exp, index) => (
-                        <div key={index} className="relative pl-12">
-                            <div className="absolute left-0 top-1 w-5 h-5 bg-blue-500 rounded-full border-4 border-white dark:border-slate-900"></div>
-                            <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">{exp.title}</p>
-                            <p className="text-md text-slate-700 dark:text-slate-300">{exp.institution}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{exp.period}</p>
-                            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{exp.description}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            <div>
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Awards & Honours</h3>
-                 <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
-                    {awardsData.map((award, index) => (
-                         <div key={index} className="relative pl-12">
-                            <div className="absolute left-0 top-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white dark:border-slate-900"></div>
-                            <p className="font-semibold text-xl text-emerald-600 dark:text-emerald-400">{award.title}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{award.year}</p>
-                            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{award.description}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            <div>
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Relevant Coursework</h3>
-                <div className="flex flex-wrap gap-2">
-                    {cvData.coursework.map((course, index) => (
-                        <span key={index} className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-blue-900/50 dark:text-blue-200">
-                            {course}
-                        </span>
-                    ))}
-                </div>
-            </div>
+          ))}
         </div>
-    </PageWrapper>
+      </div>
+
+      {/* --- Research Experience Section --- */}
+      <div>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Research Experience
+        </h3>
+        <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
+          {experienceData.map((exp, index) => (
+            <div key={index} className="relative pl-12">
+              <div className="absolute left-0 top-1 w-5 h-5 bg-blue-500 rounded-full border-4 border-white dark:border-slate-900"></div>
+              <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">
+                {exp.title}
+              </p>
+              <p className="text-md text-slate-700 dark:text-slate-300">
+                {exp.institution}
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
+                {exp.period}
+              </p>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                {exp.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- Awards & Honours Section --- */}
+      <div>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Awards & Honours
+        </h3>
+        <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-slate-200 before:dark:bg-slate-700">
+          {awardsData.map((award, index) => (
+            <div key={index} className="relative pl-12">
+              <div className="absolute left-0 top-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white dark:border-slate-900"></div>
+              <p className="font-semibold text-xl text-emerald-600 dark:text-emerald-400">
+                {award.title}
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
+                {award.year}
+              </p>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                {award.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- Relevant Coursework Section --- */}
+      <div>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Relevant Coursework
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {cvData.coursework.map((course, index) => (
+            <span
+              key={index}
+              className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-blue-900/50 dark:text-blue-200"
+            >
+              {course}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* --- Initiatives & Projects Section --- */}
+      <div>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Initiatives & Projects
+        </h3>
+        <div className="space-y-6">
+          {initiativesData.map((init, index) => (
+            <div
+              key={index}
+              className="p-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm"
+            >
+              <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">
+                {init.title}
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                {init.role}
+              </p>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                {init.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- Positions of Responsibility Section --- */}
+      <div>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Positions of Responsibility
+        </h3>
+        <div className="space-y-4">
+          {positionsData.map((pos, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-center p-4 border border-slate-200 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800/50"
+            >
+              <p className="font-medium text-slate-800 dark:text-slate-200">
+                {pos.role}
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {pos.period}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </PageWrapper>
 );
+
 
 const SimulationsPage = ({ isDarkMode }) => (
     <PageWrapper title="Physics is Fun">
@@ -924,7 +1045,7 @@ const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Rese
         <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-md">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <div className="text-xl font-bold text-slate-800 dark:text-slate-200"><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }}>Samriddha's Quantum Realm</a></div>
+              <div className="text-xl font-bold text-slate-800 dark:text-slate-200"><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }}>Samriddha's Academic Portfolio</a></div>
               <nav className="hidden md:flex items-center space-x-1">
                 {navLinks.map(link => (<a key={link.id} href={`#${link.id}`} onClick={(e) => { e.preventDefault(); setPage(link.id); }} className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${ page === link.id ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' }`}>{link.title}</a>))}
                 <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">{isDarkMode ? <Sun size={20} /> : <Moon size={20} />}</button>
