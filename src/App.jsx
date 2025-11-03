@@ -913,15 +913,10 @@ const ContactPage = () => (
     </PageWrapper>
 );
 const PDFModalViewer = ({ file, title, onClose }) => {
-  const [numPages, setNumPages] = useState(null);
-
-  function onLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-  }
-
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-fade-in">
-      <div className="relative bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden">
+      <div className="relative bg-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl overflow-hidden flex flex-col">
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 rounded-full p-2 text-white transition-colors"
@@ -929,27 +924,18 @@ const PDFModalViewer = ({ file, title, onClose }) => {
           <X size={20} />
         </button>
 
+        {/* Title */}
         <h2 className="text-2xl font-bold text-center text-white py-4 border-b border-slate-700">
           {title}
         </h2>
 
-        <div className="h-[80vh] overflow-y-auto flex justify-center bg-slate-800 p-4">
-       <Document
-  file={new URL(file, window.location.origin).toString()}
-  onLoadSuccess={onDocumentLoadSuccess}
-  loading={<div className="text-white text-center p-10">Loading PDF...</div>}
-  error={<div className="text-red-400 text-center p-8">Failed to load PDF file</div>}
->
-  {Array.from(new Array(numPages || 0), (el, index) => (
-    <Page
-      key={`page_${index + 1}`}
-      pageNumber={index + 1}
-      renderTextLayer={false}
-      renderAnnotationLayer={false}
-      className="mb-4 shadow-lg"
-    />
-  ))}
-</Document>
+        {/* PDF Viewer */}
+        <div className="flex-1 bg-slate-800">
+          <iframe
+            src={`${file}#view=FitH&toolbar=0&navpanes=0`}
+            title={title}
+            className="w-full h-[80vh] rounded-lg shadow-lg"
+          ></iframe>
         </div>
       </div>
     </div>
@@ -973,10 +959,11 @@ const ReportsPage = () => {
   return (
     <PageWrapper title="Reports & Presentations">
       <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">
-        A curated selection of my academic reports and research presentations, combining theoretical
-        insights and computational explorations.
+        A curated selection of my academic reports and research presentations,
+        combining theoretical insights and computational explorations.
       </p>
 
+      {/* Reports Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {reportsData.map((report, index) => (
           <button
@@ -984,8 +971,10 @@ const ReportsPage = () => {
             onClick={() => setSelectedReport(report)}
             className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl bg-gradient-to-br from-blue-50 via-white to-slate-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 transition-all duration-300 transform hover:-translate-y-1"
           >
+            {/* Hover Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
 
+            {/* Text Content */}
             <div className="p-6 relative z-20">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                 {report.title}
@@ -998,7 +987,7 @@ const ReportsPage = () => {
               </div>
             </div>
 
-            {/* Decorative Corner Ribbon */}
+            {/* PDF Label Ribbon */}
             <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 rounded-bl-lg">
               PDF
             </div>
