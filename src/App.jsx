@@ -98,7 +98,43 @@ const initiativesData = [
     description: "Built a comprehensive website for the physics department to centralize academic resources, featuring course guides and timetable and a platform for sharing notes and a secure, domain-restricted (@iiserb.ac.in) forum for discussions." 
   }
 ];
-
+const reportsData = [
+  {
+    title: "AFM Presentation",
+    file: "/AFM_PRESENT.pdf",
+    description: "Final presentation on Antiferromagnetism and topological transitions.",
+  },
+  {
+    title: "AFM Report (SG)",
+    file: "/AFM_REPORT_SG.pdf",
+    description: "Comprehensive report detailing theoretical and computational models for AFM systems.",
+  },
+  {
+    title: "Everything Entangled, All At Once",
+    file: "/Everything__Entangled__All_At_Once.pdf",
+    description: "A deep dive into entanglement phenomena and quantum information theory.",
+  },
+  {
+    title: "Poisson Statistics in Quantum Systems",
+    file: "/Poisson.pdf",
+    description: "Mathematical analysis and visualization of Poisson-distributed quantum events.",
+  },
+  {
+    title: "Markov Processes in Physics",
+    file: "/Markov.pdf",
+    description: "Exploring stochastic Markov chains and their applications in physical systems.",
+  },
+  {
+    title: "Topological Dirac Systems",
+    file: "/TopoDirac.pdf",
+    description: "Presentation on Dirac cones, topology, and symmetry breaking.",
+  },
+  {
+    title: "Quantum Walk Simulations",
+    file: "/QuantumWalk.pdf",
+    description: "A report on discrete-time quantum walks and topological transport.",
+  },
+];
 const positionsData = [
   { role: "Secretary, Science Council, IISER Bhopal", period: "2024-2025" },
   { role: "Peer Counselor, Counselling Cell, IISER Bhopal", period: "2023-2024" },
@@ -881,140 +917,101 @@ const ContactPage = () => (
         <div className="content-card text-center"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">Get In Touch</h3><p className="text-slate-600 dark:text-slate-300 mt-2 mb-6">I'm always open to discussing research, collaborations, or interesting opportunities.</p><div className="flex flex-col sm:flex-row justify-center items-center gap-6"><a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail /> Email Me</a><a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github /> Follow on GitHub</a><a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin /> Connect on LinkedIn</a></div></div>
     </PageWrapper>
 );
-// --- NEW: Notes Page Component with PDF Book Viewer ---
+const PDFModalViewer = ({ file, title, onClose }) => {
+  const [numPages, setNumPages] = useState(null);
 
-const PDFBookViewer = ({ file, title, onBack }) => {
-    const [numPages, setNumPages] = useState(null);
-    const [pageNumber, setPageNumber] = useState(1); // Current page spread starts at page 1
-    const [containerWidth, setContainerWidth] = useState(0);
-    const containerRef = useRef(null);
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
 
-    useEffect(() => {
-        const updateWidth = () => {
-            if (containerRef.current) {
-                setContainerWidth(containerRef.current.offsetWidth);
-            }
-        };
-        window.addEventListener('resize', updateWidth);
-        updateWidth();
-        return () => window.removeEventListener('resize', updateWidth);
-    }, []);
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-fade-in">
+      <div className="relative bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 rounded-full p-2 text-white transition-colors"
+        >
+          <X size={20} />
+        </button>
 
-    function onDocumentLoadSuccess({ numPages }) {
-        setNumPages(numPages);
-        setPageNumber(1);
-    }
+        <h2 className="text-2xl font-bold text-center text-white py-4 border-b border-slate-700">
+          {title}
+        </h2>
 
-    const goToPrevPage = () => setPageNumber(prev => Math.max(1, prev - 2));
-    const goToNextPage = () => setPageNumber(prev => (prev + 2 > numPages ? prev : prev + 2));
-
-    // Calculate page width for a two-page spread, considering spacing
-    const pageWidth = containerWidth ? (containerWidth / 2) - 10 : null;
-
-    return (
-        <div className="animate-fade-in-up">
-            <div className="flex justify-between items-center mb-6">
-                <button onClick={onBack} className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg font-semibold transition-colors">
-                    <ArrowLeft size={20} /> Back to Notes
-                </button>
-                <h3 className="text-xl font-bold text-center text-slate-800 dark:text-slate-200 truncate hidden sm:block">{title}</h3>
-                <div className="flex items-center gap-2">
-                    <button onClick={goToPrevPage} disabled={pageNumber <= 1} className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <ChevronLeft size={24} />
-                    </button>
-                     <span className="font-mono text-slate-600 dark:text-slate-400 w-24 text-center">
-                        {pageNumber} / {numPages || '...'}
-                    </span>
-                    <button onClick={goToNextPage} disabled={pageNumber + 1 >= numPages} className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <ChevronRight size={24} />
-                    </button>
-                </div>
-            </div>
-
-            <div ref={containerRef} className="bg-slate-200 dark:bg-slate-800 p-2 sm:p-4 rounded-lg shadow-2xl book-spread-container">
-                <Document file={file} onLoadSuccess={onDocumentLoadSuccess} loading={<div className="text-center p-8">Loading PDF...</div>}>
-                    <div className="flex justify-center items-start gap-1 sm:gap-2 transition-all duration-500 ease-in-out">
-                       {/* Left Page */}
-                        <div className="bg-white shadow-lg relative" style={{ width: pageWidth ? 'auto' : '50%' }}>
-                           <Page pageNumber={pageNumber} width={pageWidth} renderAnnotationLayer={false} />
-                        </div>
-                        {/* Right Page */}
-                        {pageNumber + 1 <= numPages && (
-                             <div className="bg-white shadow-lg relative" style={{ width: pageWidth ? 'auto' : '50%' }}>
-                                <Page pageNumber={pageNumber + 1} width={pageWidth} renderAnnotationLayer={false}/>
-                            </div>
-                        )}
-                    </div>
-                </Document>
-            </div>
+        <div className="h-[80vh] overflow-y-auto flex justify-center bg-slate-800 p-4">
+          <Document
+            file={file}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={<div className="text-white text-center p-10">Loading PDF...</div>}
+          >
+            {Array.from(new Array(numPages || 0), (el, index) => (
+              <Page
+                key={`page_${index + 1}`}
+                pageNumber={index + 1}
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                className="mb-4 shadow-lg"
+              />
+            ))}
+          </Document>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
-// --- NEW: Notes Page Component with Simple PDF Viewer ---
+// --- Main Reports Page ---
+const ReportsPage = () => {
+  const [selectedReport, setSelectedReport] = useState(null);
 
-const SimplePDFViewer = ({ file, title, onBack }) => {
-    const [numPages, setNumPages] = useState(null);
-
-    function onDocumentLoadSuccess({ numPages }) {
-        setNumPages(numPages);
-    }
-
+  if (selectedReport) {
     return (
-        <div className="animate-fade-in-up">
-            <div className="flex justify-between items-center mb-4">
-                <button onClick={onBack} className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg font-semibold transition-colors">
-                    <ArrowLeft size={20} /> Back to Notes
-                </button>
-                <h3 className="text-xl font-bold text-center text-slate-800 dark:text-slate-200 truncate hidden sm:block">{title}</h3>
-                <span className="font-mono text-slate-600 dark:text-slate-400">
-                    Total Pages: {numPages || '...'}
-                </span>
-            </div>
-
-            {/* Simple Scrollable Container */}
-            <div className="h-[80vh] overflow-y-auto bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 sm:p-4 flex justify-center">
-                <Document file={file} onLoadSuccess={onDocumentLoadSuccess} loading={<div className="text-center p-8">Loading PDF...</div>}>
-                   {Array.from(new Array(numPages || 0), (el, index) => (
-                        <Page
-                            key={`page_${index + 1}`}
-                            pageNumber={index + 1}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                            className="mb-4 shadow-lg"
-                        />
-                    ))}
-                </Document>
-            </div>
-        </div>
+      <PDFModalViewer
+        file={selectedReport.file}
+        title={selectedReport.title}
+        onClose={() => setSelectedReport(null)}
+      />
     );
-};
+  }
 
+  return (
+    <PageWrapper title="Reports & Presentations">
+      <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">
+        A curated selection of my academic reports and research presentations, combining theoretical
+        insights and computational explorations.
+      </p>
 
-const NotesPage = () => {
-    const [selectedNote, setSelectedNote] = useState(null);
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {reportsData.map((report, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedReport(report)}
+            className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl bg-gradient-to-br from-blue-50 via-white to-slate-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
 
-    if (selectedNote) {
-        return <SimplePDFViewer file={selectedNote.file} title={selectedNote.title} onBack={() => setSelectedNote(null)} />;
-    }
-
-    return (
-        <PageWrapper title="Course Notes">
-             <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">A collection of my personal notes from various courses. Click on a card to open the notes.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {notesData.map((note, index) => (
-                    <button key={index} onClick={() => setSelectedNote(note)} className="interest-card text-left">
-                        <div className="text-blue-500 mb-4">{note.icon}</div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{note.title}</h3>
-                        <p className="mt-2 text-slate-600 dark:text-slate-300">{note.description}</p>
-                        <div className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 mt-4">Read Notes &rarr;</div>
-                    </button>
-                ))}
+            <div className="p-6 relative z-20">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                {report.title}
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 text-sm line-clamp-3">
+                {report.description}
+              </p>
+              <div className="mt-4 font-semibold text-blue-600 dark:text-blue-400 group-hover:underline">
+                View Report →
+              </div>
             </div>
-        </PageWrapper>
-    );
-};
 
+            {/* Decorative Corner Ribbon */}
+            <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 rounded-bl-lg">
+              PDF
+            </div>
+          </button>
+        ))}
+      </div>
+    </PageWrapper>
+  );
+};
 // --- Main App Component ---
 export default function App() {
   const [page, setPage] = useState('home');
@@ -1032,7 +1029,7 @@ const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Rese
       case 'cv': return <CVPage />;
       case 'simulations': return <SimulationsPage isDarkMode={isDarkMode} />;
       case 'blog': return <BlogPage />;
-      case 'notes': return <NotesPage />;
+      case 'reports': return <ReportsPage />;
       case 'gallery': return <GalleryPage />;
       case 'contact': return <ContactPage />;
       default: return <HomePage />;
