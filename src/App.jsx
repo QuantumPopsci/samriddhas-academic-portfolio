@@ -101,38 +101,33 @@ const initiativesData = [
 const reportsData = [
   {
     title: "AFM Presentation",
-    file: "/AFM PRESENT.pdf",
-    description: "Final presentation on Antiferromagnetism and topological transitions.",
+    file: "/AFM_PRESENT.pdf",
+    description: "Final presentation on Atomic Force Microscopy for my Third Year Lab.",
   },
   {
     title: "AFM Report (SG)",
     file: "/AFM_REPORT_SG.pdf",
-    description: "Comprehensive report detailing theoretical and computational models for AFM systems.",
+    description: "Comprehensive report on working and results in my Atomic Force Microscopy experiment.",
   },
   {
     title: "Everything Entangled, All At Once",
     file: "/Everything__Entangled__All_At_Once.pdf",
-    description: "A deep dive into entanglement phenomena and quantum information theory.",
+    description: "A talk I gave as an intro to entanglement phenomena and quantum information theory.",
   },
   {
-    title: "Poisson Statistics in Quantum Systems",
+    title: "A Review on Elementary Probability and Poisson Process",
     file: "/Poisson.pdf",
-    description: "Mathematical analysis and visualization of Poisson-distributed quantum events.",
+    description: "Mathematical Treatment of Probabilities and Poisson Processes",
   },
   {
-    title: "Markov Processes in Physics",
+    title: "Markov Chains: From Theory to Applications",
     file: "/Markov.pdf",
-    description: "Exploring stochastic Markov chains and their applications in physical systems.",
+    description: "Exploring Markov chains and their applications in physical systems like the 1-D Ising Model.",
   },
   {
-    title: "Topological Dirac Systems",
+    title: "Topological Magnon Nodal-Lines in Layered Collinear Antiferromagnets",
     file: "/TopoDirac.pdf",
-    description: "Presentation on Dirac cones, topology, and symmetry breaking.",
-  },
-  {
-    title: "Quantum Walk Simulations",
-    file: "/QuantumWalk.pdf",
-    description: "A report on discrete-time quantum walks and topological transport.",
+    description: "Presentation on DNL Phase in Layered Collinear Antiferromagnets",
   },
 ];
 const positionsData = [
@@ -940,10 +935,11 @@ const PDFModalViewer = ({ file, title, onClose }) => {
 
         <div className="h-[80vh] overflow-y-auto flex justify-center bg-slate-800 p-4">
           <Document
-            file={file}
-            onLoadSuccess={onDocumentLoadSuccess}
-            loading={<div className="text-white text-center p-10">Loading PDF...</div>}
-          >
+  file={`${import.meta.env.BASE_URL}${file}`}
+  onLoadSuccess={onDocumentLoadSuccess}
+  loading={<div className="text-white text-center p-10">Loading PDF...</div>}
+/>
+
             {Array.from(new Array(numPages || 0), (el, index) => (
               <Page
                 key={`page_${index + 1}`}
