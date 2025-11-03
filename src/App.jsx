@@ -129,6 +129,16 @@ const reportsData = [
     file: "/TopoDirac.pdf",
     description: "Presentation on DNL Phase in Layered Collinear Antiferromagnets",
   },
+  {
+    title: "A Study on Topological Magnons",
+    file: "/A Study on Topological Magnons.pdf",
+    description: "Comprehensive report on the theoretical framework and material realizations of topological magnon excitations."
+  },
+  {
+    title: "Role of Interlayer Spin Canting Interaction in Layered Collinear AFM",
+    file: "/Role of Interlayer Spin Canting Interaction in Layered Collinear AFM.pdf",
+    description: "Research paper exploring interlayer spin canting effects and topological phase transitions in layered AFMs."
+  },
 ];
 const positionsData = [
   { role: "Secretary, Science Council, IISER Bhopal", period: "2024-2025" },
