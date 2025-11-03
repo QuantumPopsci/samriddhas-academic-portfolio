@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://samriddhas-quantum-realm.vercel.app/sitemap.xml
