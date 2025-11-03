@@ -101,12 +101,12 @@ const initiativesData = [
 const reportsData = [
   {
     title: "AFM Presentation",
-    file: "/AFM_PRESENT.pdf",
+    file: "/AFM PRESENT.pdf",
     description: "Final presentation on Atomic Force Microscopy for my Third Year Lab.",
   },
   {
     title: "AFM Report (SG)",
-    file: "/AFM_REPORT_SG.pdf",
+    file: "/AFM REPORT SG.pdf",
     description: "Comprehensive report on working and results in my Atomic Force Microscopy experiment.",
   },
   {
