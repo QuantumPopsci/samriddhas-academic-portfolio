@@ -915,7 +915,7 @@ const ContactPage = () => (
 const PDFModalViewer = ({ file, title, onClose }) => {
   const [numPages, setNumPages] = useState(null);
 
-  function onDocumentLoadSuccess({ numPages }) {
+  function onLoadSuccess({ numPages }) {
     setNumPages(numPages);
   }
 
@@ -934,22 +934,21 @@ const PDFModalViewer = ({ file, title, onClose }) => {
         </h2>
 
         <div className="h-[80vh] overflow-y-auto flex justify-center bg-slate-800 p-4">
-          <Document
+        <Document
   file={`${import.meta.env.BASE_URL}${file}`}
   onLoadSuccess={onDocumentLoadSuccess}
   loading={<div className="text-white text-center p-10">Loading PDF...</div>}
-/>
-
-            {Array.from(new Array(numPages || 0), (el, index) => (
-              <Page
-                key={`page_${index + 1}`}
-                pageNumber={index + 1}
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
-                className="mb-4 shadow-lg"
-              />
-            ))}
-          </Document>
+>
+  {Array.from(new Array(numPages || 0), (el, index) => (
+    <Page
+      key={`page_${index + 1}`}
+      pageNumber={index + 1}
+      renderTextLayer={false}
+      renderAnnotationLayer={false}
+      className="mb-4 shadow-lg"
+    />
+  ))}
+</Document>
         </div>
       </div>
     </div>
