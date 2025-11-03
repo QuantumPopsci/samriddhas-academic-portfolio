@@ -934,10 +934,11 @@ const PDFModalViewer = ({ file, title, onClose }) => {
         </h2>
 
         <div className="h-[80vh] overflow-y-auto flex justify-center bg-slate-800 p-4">
-        <Document
-  file={`${import.meta.env.BASE_URL}${file}`}
+       <Document
+  file={new URL(file, window.location.origin).toString()}
   onLoadSuccess={onDocumentLoadSuccess}
   loading={<div className="text-white text-center p-10">Loading PDF...</div>}
+  error={<div className="text-red-400 text-center p-8">Failed to load PDF file</div>}
 >
   {Array.from(new Array(numPages || 0), (el, index) => (
     <Page
