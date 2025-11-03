@@ -87,6 +87,22 @@ const awardsData = [
 ];
 
 // --- Thematic SVG Icons ---
+
+const CooperPairIcon = () => (
+  <svg width="100%" height="100%" viewBox="0 0 100 100" className="stroke-current">
+    {/* Electron 1 */}
+    <circle cx="30" cy="50" r="12" className="fill-current opacity-70" />
+    <text x="30" y="55" textAnchor="middle" stroke="none" className="fill-white font-bold text-lg">e⁻</text>
+    
+    {/* Electron 2 */}
+    <circle cx="70" cy="50" r="12" className="fill-current opacity-70" />
+    <text x="70" y="55" textAnchor="middle" stroke="none" className="fill-white font-bold text-lg">e⁻</text>
+    
+    {/* Wavy line (phonon interaction) */}
+    <path d="M 42 50 C 50 35, 60 65, 68 50" strokeWidth="2.5" fill="none" className="opacity-80" />
+  </svg>
+);
+
 const SpinLatticeIcon = () => (
   <svg width="100%" height="100%" viewBox="0 0 100 100" className="stroke-current">
     <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" /></marker></defs>
@@ -628,11 +644,11 @@ const HomePage = () => (
                 <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Magnetism</h3>
                 <p className="mt-2 text-slate-600 dark:text-slate-300">Exploring spin liquids, topological magnons, and frustrated magnetic systems.</p>
             </a>
-             <a href="https://qiskit.org/textbook/what-is-quantum.html" target="_blank" rel="noopener noreferrer" className="interest-card">
-                <div className="w-24 h-24 mx-auto text-purple-500"><QubitIcon /></div>
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Exotic Superconductivity</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Exploring the field of Topological Superconductors and the newly theorized interplay of Altermagnetism and Superconductivity</p>
-            </a>
+             <a href="https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.83.1057" target="_blank" rel="noopener noreferrer" className="interest-card">
+                <div className="w-24 h-24 mx-auto text-purple-500"><CooperPairIcon /></div>
+                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Exotic Superconductivity</h3>
+                <p className="mt-2 text-slate-600 dark:text-slate-300">Exploring the field of Topological Superconductors and the newly theorized interplay of Altermagnetism and Superconductivity</p>
+            </a>
              <a href="http://www-personal.umich.edu/~mejn/cp/" target="_blank" rel="noopener noreferrer" className="interest-card">
                 <div className="w-24 h-24 mx-auto text-rose-500"><BrainCircuit className="w-full h-full" strokeWidth={1.5}/></div>
                 <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Computational Physics</h3>
@@ -646,10 +662,10 @@ const ResearchPage = () => (
     <PageWrapper title="Research Interests">
         <div className="space-y-6 text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
             <p>My research interests are centered at the confluence of condensed matter theory, quantum information, and computational physics. I aim to explore novel quantum phenomena in materials and harness them for future technologies.</p>
-            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Topological Magnons for Quantum Computing</h3><p>Magnons, the quanta of spin waves, can exhibit non-trivial topological properties. I am interested in how these can be used as robust carriers of quantum information, leading to new platforms for quantum computation that are intrinsically protected from certain types of noise.</p></div>
+            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Altermagnetism and Exotic Superconductivity</h3><p>Altermagnets are a newly discovered magnetic class, distinct from ferromagnets and antiferromagnets, that exhibit strong spin-splitting in their band structure without a net external magnetization. I am fascinated by the interplay between this intrinsic spin-momentum coupling and superconductivity. This combination is a promising route to engineer novel topological superconducting phases, such as those hosting Majorana zero modes, which are key building blocks for fault-tolerant quantum computers.</p></div> 
             <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Quantum Spin Liquids</h3><p>These are exotic states of matter that defy conventional magnetic ordering even at absolute zero. Their highly entangled nature makes them a prime candidate for realizing topological quantum computation. My interest lies in theoretically modeling these systems and identifying experimental signatures.</p></div>
             <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Computational Approaches & Machine Learning</h3><p>I am a firm believer in the power of computation to solve complex physical problems. I am actively developing my skills in numerical methods and applying machine learning to classify quantum phases of matter and accelerate the discovery of new materials.</p></div>
-        </div>
+        </div>  
     </PageWrapper>
 );
 
