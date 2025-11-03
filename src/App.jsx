@@ -101,7 +101,7 @@ const initiativesData = [
 const reportsData = [
   {
     title: "AFM Presentation",
-    file: "/AFM_PRESENT.pdf",
+    file: "/AFM PRESENT.pdf",
     description: "Final presentation on Antiferromagnetism and topological transitions.",
   },
   {
