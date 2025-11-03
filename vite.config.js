@@ -6,6 +6,7 @@ import sitemap from 'vite-plugin-sitemap'
 export default defineConfig({
   plugins: [
     react(),
-    sitemap({ hostname: 'https://samriddhas-quantum-realm.vercel.app' })
+    sitemap({hostname: 'https://samriddhas-quantum-realm.vercel.app',
+      generateRobotsTxt: false,  })
   ],
 })
