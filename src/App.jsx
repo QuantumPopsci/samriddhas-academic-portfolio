@@ -210,6 +210,18 @@ const SpinLatticeIcon = () => (
     )))}
   </svg>
 );
+const ScholarIcon = ({ size = 20 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+    <path d="M11 12.98L3.5 9 11 5.02 18.5 9 11 12.98zM5 11.5v3.5c0 2.5 3.5 4 6 4s6-1.5 6-4v-3.5l-6 3.3-6-3.3z"/>
+  </svg>
+);
 
 const QubitIcon = () => (
     <svg width="100%" height="100%" viewBox="0 0 100 100" className="stroke-current">
@@ -726,33 +738,80 @@ const HomePage = () => (
             <div className="mt-8 flex justify-center gap-4">
                 <a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail size={20} /></a>
                 <a href="https://github.com/QuantumPopsci" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Github size={20} /></a>
+                <a
+        href="https://scholar.google.com/citations?user=A7Ec0RYAAAAJ&hl=en"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"
+    >
+        <ScholarIcon size={20} />
+    </a>
                 <a href="https://www.linkedin.com/in/samriddha-ganguly-3360bb16a/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Linkedin size={20} /></a>
                 <a href="tel:+919830606317" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Phone size={20} /></a>
             </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <a href="https://www.nature.com/articles/nature23268" target="_blank" rel="noopener noreferrer" className="interest-card">
-                <div className="w-24 h-24 mx-auto text-blue-500"><Atom className="w-full h-full" strokeWidth={1.5}/></div>
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Topological Quantum Matter</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Investigating electronic and magnetic properties in Topological materials.</p>
-            </a>
-             <a href="https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.88.041002" target="_blank" rel="noopener noreferrer" className="interest-card">
-                <div className="w-24 h-24 mx-auto text-emerald-500"><SpinLatticeIcon /></div>
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Quantum Magnetism</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Exploring spin liquids, topological magnons, and frustrated magnetic systems.</p>
-            </a>
-             <a href="https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.83.1057" target="_blank" rel="noopener noreferrer" className="interest-card">
-                <div className="w-24 h-24 mx-auto text-purple-500"><CooperPairIcon /></div>
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Exotic Superconductivity</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Exploring the field of Topological Superconductors and the newly theorized interplay of Altermagnetism and Superconductivity</p>
-            </a>
-             <a href="http://www-personal.umich.edu/~mejn/cp/" target="_blank" rel="noopener noreferrer" className="interest-card">
-                <div className="w-24 h-24 mx-auto text-rose-500"><BrainCircuit className="w-full h-full" strokeWidth={1.5}/></div>
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Computational Physics</h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">Applying numerical methods and ML to solve complex physical problems.</p>
-            </a>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+    {/* --- Topological Matter + Magnetism --- */}
+    <a href="https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.88.035005" target="_blank" rel="noopener noreferrer" className="interest-card">
+        <div className="w-24 h-24 mx-auto text-blue-500">
+            <Atom className="w-full h-full" strokeWidth={1.5}/>
         </div>
+        <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+            Topological Quantum Matter & Magnetism
+        </h3>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
+            Focusing on topological phases in electronic and magnetic systems, including Chern insulators, 
+            symmetry-protected states, and topological magnons, with emphasis on transport phenomena 
+            and symmetry-driven band topology.
+        </p>
+    </a>
+
+    {/* --- Topological Superconductivity --- */}
+    <a href="https://iopscience.iop.org/article/10.1088/1361-6633/aa6ac7/meta" target="_blank" rel="noopener noreferrer" className="interest-card">
+        <div className="w-24 h-24 mx-auto text-purple-500">
+            <CooperPairIcon />
+        </div>
+        <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+            Topological Superconductivity
+        </h3>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
+            Focusing on unconventional superconducting phases, Majorana zero modes, and the interplay 
+            of topology, magnetism, and spin–orbit coupling in engineered quantum systems.
+        </p>
+    </a>
+
+    {/* --- NEW: Superconductor–Semiconductor --- */}
+    <a href="https://www.nature.com/articles/s41578-018-0003-1" target="_blank" rel="noopener noreferrer" className="interest-card">
+        <div className="w-24 h-24 mx-auto text-emerald-500">
+            <SpinLatticeIcon />
+        </div>
+        <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+            Superconductor–Semiconductor Heterostructures
+        </h3>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
+            Looking into proximity-induced superconductivity in hybrid systems, including 
+            semiconductor nanowires and 2D materials, with the goal of understanding 
+            topological superconducting phases and transport signatures.
+        </p>
+    </a>
+
+    {/* --- Computational --- */}
+    <a href="http://www-personal.umich.edu/~mejn/cp/" target="_blank" rel="noopener noreferrer" className="interest-card">
+        <div className="w-24 h-24 mx-auto text-rose-500">
+            <BrainCircuit className="w-full h-full" strokeWidth={1.5}/>
+        </div>
+        <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+            Computational & Data-Driven Physics
+        </h3>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
+            Looking into numerical methods and data-driven approaches for studying quantum systems, 
+            including exact diagonalization, Monte Carlo techniques, and machine learning methods.
+        </p>
+    </a>
+
+</div>
     </PageWrapper>
 );
 
