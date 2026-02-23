@@ -719,7 +719,9 @@ const HomePage = () => (
                 Samriddha's Academic Portfolio
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
-                A fourth-year Physics undergrad at IISER Bhopal. My research interests lie in theoretical condensed matter, particularly in altermagnetic systems, exotic superconductivity, and engineering topological phases for quantum information.
+             BS–MS Physics student at IISER Bhopal working in theoretical condensed matter physics. 
+             My research focuses on topological and proximitized superconductivity with unconventional pairing, quantum magnetism, and 
+             engineered quantum materials, with applications to quantum information and transport.
             </p>
             <div className="mt-8 flex justify-center gap-4">
                 <a href="mailto:samriddha22@iiserb.ac.in" className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"><Mail size={20} /></a>
@@ -755,13 +757,67 @@ const HomePage = () => (
 );
 
 const ResearchPage = () => (
-    <PageWrapper title="Research Interests">
-        <div className="space-y-6 text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
-            <p>My research interests are centered at the confluence of condensed matter theory, quantum information, and computational physics. I aim to explore novel quantum phenomena in materials and harness them for future technologies.</p>
-            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Altermagnetism and Exotic Superconductivity</h3><p>Altermagnets are a newly discovered magnetic class, distinct from ferromagnets and antiferromagnets, that exhibit strong spin-splitting in their band structure without a net external magnetization. I am fascinated by the interplay between this intrinsic spin-momentum coupling and superconductivity. This combination is a promising route to engineer novel topological superconducting phases, such as those hosting Majorana zero modes, which are key building blocks for fault-tolerant quantum computers.</p></div> 
-            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Quantum Spin Liquids</h3><p>These are exotic states of matter that defy conventional magnetic ordering even at absolute zero. Their highly entangled nature makes them a prime candidate for realizing topological quantum computation. My interest lies in theoretically modeling these systems and identifying experimental signatures.</p></div>
-            <div className="content-card"><h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Computational Approaches & Machine Learning</h3><p>I am a firm believer in the power of computation to solve complex physical problems. I am actively developing my skills in numerical methods and applying machine learning to classify quantum phases of matter and accelerate the discovery of new materials.</p></div>
-        </div>  
+    <PageWrapper title="Research Statement">
+        <div className="space-y-8 text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-4xl mx-auto">
+
+            <p>
+                I am a fourth-year BS–MS student at IISER Bhopal working in theoretical condensed matter physics. 
+                My research focuses on understanding how topology, symmetry, and interactions give rise to novel 
+                quantum phases of matter, with an emphasis on experimentally relevant systems.
+            </p>
+
+            <div className="content-card">
+                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">
+                    Topological Superconductivity & Majorana Physics
+                </h3>
+                <p>
+                    I study proximity-induced superconductivity in hybrid systems with strong spin–orbit coupling 
+                    and magnetism. My work aims to understand how Majorana zero modes emerge at interfaces, 
+                    their transport signatures, and their potential for fault-tolerant quantum computation.
+                </p>
+            </div>
+
+            <div className="content-card">
+                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">
+                    Topological Magnons & Quantum Magnetism
+                </h3>
+                <p>
+                    My recent work focuses on symmetry-protected topological magnonic phases, particularly Dirac nodal line 
+                    magnons in layered antiferromagnets. I investigate how interlayer spin canting interactions break 
+                    PT symmetry and induce topological phase transitions, leading to observable thermal Hall responses.
+                </p>
+            </div>
+
+            <div className="content-card">
+                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">
+                    Quantum Materials & Engineered Heterostructures
+                </h3>
+                <p>
+                    I am interested in engineered quantum materials where topology and correlations intersect, including 
+                    flat-band systems, altermagnets, and van der Waals heterostructures. My goal is to connect theoretical 
+                    models with experimentally realizable systems.
+                </p>
+            </div>
+
+            <div className="content-card">
+                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">
+                    Computational & Data-Driven Physics
+                </h3>
+                <p>
+                    I use numerical techniques including exact diagonalization, MPS/DMRG, and Monte Carlo methods to 
+                    study quantum systems. I am also interested in machine learning approaches for identifying quantum 
+                    phases and analyzing experimental data.
+                </p>
+            </div>
+
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                <p className="text-sm">
+                    <strong>Current Direction:</strong> Exploring topological superconductivity in magnetic systems and 
+                    magnonic transport phenomena in PT-symmetric and symmetry-broken phases.
+                </p>
+            </div>
+
+        </div>
     </PageWrapper>
 );
 
@@ -1063,34 +1119,27 @@ const PublicationsPage = () => {
 
         <div className="space-y-6">
           {publicationsData.map((pub, index) => (
-            <div key={index} className="content-card">
-              <h4 className="text-xl font-semibold text-blue-600 dark:text-blue-400">
-                {pub.title}
-              </h4>
+            <div className="content-card">
+  <p className="text-lg font-semibold text-slate-900 dark:text-white">
+    {pub.authors}
+  </p>
 
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                {pub.authors}
-              </p>
+  <h4 className="text-xl font-semibold text-blue-600 dark:text-blue-400 mt-1">
+    {pub.title}
+  </h4>
 
-              <p className="italic text-slate-700 dark:text-slate-300">
-                {pub.journal}, {pub.volume} ({pub.year})
-              </p>
+  <p className="italic text-slate-700 dark:text-slate-300 mt-1">
+    {pub.journal} <span className="font-medium">{pub.volume}</span> ({pub.year})
+  </p>
 
-              {pub.note && (
-                <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                  {pub.note}
-                </p>
-              )}
-
-              <a
-                href={pub.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline text-sm font-medium"
-              >
-                DOI: {pub.doi}
-              </a>
-            </div>
+  <a
+    href={pub.link}
+    target="_blank"
+    className="text-sm text-blue-500 hover:underline mt-2 block"
+  >
+    DOI: {pub.doi}
+  </a>
+</div>
           ))}
         </div>
       </div>
