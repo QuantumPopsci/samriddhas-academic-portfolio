@@ -94,12 +94,14 @@ const initiativesData = [
   { 
     title: "open_board: An Interdisciplinary Knowledge-Sharing Initiative", 
     role: "Co-Founder & Lead Developer", 
-    description: "Conceptualized and developed a peer-to-peer platform for students to present projects and research to a non-specialist, interdisciplinary audience in fun and engaging live sessions." 
+    description: "Conceptualized and developed a peer-to-peer platform for students to present projects and research to a non-specialist, interdisciplinary audience in fun and engaging live sessions.",
+    link: "https://openboard-web.vercel.app/"   // ADD THIS
   },
   { 
     title: "A Hitchhiker's Guide to Physics @ IISERB", 
     role: "Lead Developer", 
-    description: "Built a comprehensive website for the physics department to centralize academic resources, featuring course guides and timetable and a platform for sharing notes and a secure, domain-restricted (@iiserb.ac.in) forum for discussions." 
+    description: "Built a comprehensive website for the physics department to centralize academic resources, featuring course guides and timetable and a platform for sharing notes and a secure, domain-restricted (@iiserb.ac.in) forum for discussions.",
+    link: "https://physicsiiserb.vercel.app/" // ADD THIS
   }
 ];
 const reportsData = [
@@ -737,7 +739,7 @@ const HomePage = () => (
         <div className="relative text-center py-12 md:py-20 z-10 overflow-hidden rounded-lg">
             <div className="absolute inset-0 -z-10"><WaveAnimation /></div>
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Samriddha's Academic Portfolio
+                Samriddha Ganguly
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
              BS–MS Physics student at IISER Bhopal working in theoretical condensed matter physics. 
