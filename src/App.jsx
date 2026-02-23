@@ -1001,10 +1001,13 @@ const CVPage = () => (
         </h3>
         <div className="space-y-6">
           {initiativesData.map((init, index) => (
-            <div
-              key={index}
-              className="p-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm"
-            >
+            <a
+  key={index}
+  href={init.link}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+>
               <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">
                 {init.title}
               </p>
