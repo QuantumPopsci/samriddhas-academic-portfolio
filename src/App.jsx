@@ -995,33 +995,41 @@ const CVPage = () => (
       </div>
 
       {/* --- Initiatives & Projects Section --- */}
-      <div>
-        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
-          Initiatives & Projects
-        </h3>
-        <div className="space-y-6">
-          {initiativesData.map((init, index) => (
-            <a
-  key={index}
-  href={init.link}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
->
-              <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">
-                {init.title}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                {init.role}
-              </p>
-              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                {init.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+     <div>
+  <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+    Initiatives & Projects
+  </h3>
 
+  <div className="space-y-6">
+    {initiativesData.map((init, index) => (
+      <a
+        key={index}
+        href={init.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+      >
+        <p className="font-semibold text-xl text-blue-600 dark:text-blue-400">
+          {init.title}
+        </p>
+
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+          {init.role}
+        </p>
+
+        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+          {init.description}
+        </p>
+
+        {/* Optional: Link indicator */}
+        <p className="mt-3 text-blue-600 dark:text-blue-400 font-semibold text-sm">
+          Visit Project →
+        </p>
+
+      </a>
+    ))}
+  </div>
+</div>
       {/* --- Positions of Responsibility Section --- */}
       <div>
         <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
