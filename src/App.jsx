@@ -42,8 +42,8 @@ const galleryItems = [
     { src: "/GROUPS", caption: "Who says Physics people do not do Math?" },
     { src: "/GMRT", caption: "GMRT during RAWS December 2023" },
     { src: "/NCRA", caption: "NCRA-TIFR Main Building, Pune" },
-    { src: "/qmec.jpeg", caption: "Group Photo of International Conference on Quantum Materials and Emerging Concepts 2025 held at IISER Bhopal" },
-    { src: "/iicm,jpeg", caption: "Inter-INCI Cultural Meet 2025 Quiz Gold Medal Winner" },
+    { src: "/qmec1.jpeg", caption: "Group Photo of International Conference on Quantum Materials and Emerging Concepts 2025 held at IISER Bhopal" },
+    { src: "/iicm.jpeg", caption: "Inter-INCI Cultural Meet 2025 Quiz Gold Medal Winner" },
     { src: "/cric1.jpeg", caption: "Finalist Team for Dept. of Physics IISERB Cricket Tournament" },
     
 ];
