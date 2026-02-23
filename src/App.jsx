@@ -140,6 +140,38 @@ const reportsData = [
     description: "Research paper exploring interlayer spin canting effects and topological phase transitions in layered AFMs."
   },
 ];
+// --- NEW: Publications Data ---
+const publicationsData = [
+  {
+    title: "Decoherence of chiral magnon edge modes in a topological bosonic Chern insulator",
+    authors: "Samriddha Ganguly",
+    journal: "Journal of Physics: Condensed Matter",
+    year: "2026",
+    volume: "38, 075801",
+    doi: "10.1088/1361-648X/ae44df",
+    link: "https://doi.org/10.1088/1361-648X/ae44df",
+    note: "Focus Issue on Topological Physics"
+  },
+  {
+    title: "A Data-Driven Approach to Leak Identification and Severity Analysis in Pipelines Using Acoustic Sensing and Deep Learning",
+    authors: "Mayukh Biswas, Aditya Narayan, Debaudh Ghosh, Samriddha Ganguly, Raj Rakshit, Chirabrata Bhaumik",
+    journal: "IEEE Sensors Letters",
+    year: "2025",
+    volume: "10(1)",
+    doi: "10.1109/LSENS.2025.3638602",
+    link: "https://doi.org/10.1109/LSENS.2025.3638602"
+  }
+];
+// --- NEW final: Conference Posters ---
+const postersData = [
+  {
+    title: "Topological DNL Magnons in Layered Honeycomb Antiferromagnets and the Role of Interlayer Spin Canting",
+    conference: "International Conference on Quantum Materials and Emerging Concepts (QMEC) 2025",
+    authors: "Samriddha Ganguly, Shayan Garai, Nirmal Ganguli",
+    file: "/POSTER_QMEC_2025.pdf",
+    description: "Study of PT-symmetry protected Dirac nodal line magnons and their gapping via interlayer spin canting interactions."
+  }
+];
 const positionsData = [
   { role: "Secretary, Science Council, IISER Bhopal", period: "2024-2025" },
   { role: "Peer Counselor, Counselling Cell, IISER Bhopal", period: "2023-2024" },
@@ -1007,6 +1039,101 @@ const ReportsPage = () => {
     </PageWrapper>
   );
 };
+const PublicationsPage = () => {
+  const [selectedPoster, setSelectedPoster] = useState(null);
+
+  if (selectedPoster) {
+    return (
+      <PDFModalViewer
+        file={selectedPoster.file}
+        title={selectedPoster.title}
+        onClose={() => setSelectedPoster(null)}
+      />
+    );
+  }
+
+  return (
+    <PageWrapper title="Publications & Conference Posters">
+
+      {/* --- Publications --- */}
+      <div className="mb-12">
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Publications
+        </h3>
+
+        <div className="space-y-6">
+          {publicationsData.map((pub, index) => (
+            <div key={index} className="content-card">
+              <h4 className="text-xl font-semibold text-blue-600 dark:text-blue-400">
+                {pub.title}
+              </h4>
+
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {pub.authors}
+              </p>
+
+              <p className="italic text-slate-700 dark:text-slate-300">
+                {pub.journal}, {pub.volume} ({pub.year})
+              </p>
+
+              {pub.note && (
+                <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                  {pub.note}
+                </p>
+              )}
+
+              <a
+                href={pub.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline text-sm font-medium"
+              >
+                DOI: {pub.doi}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- Posters --- */}
+      <div>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+          Conference Posters
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {postersData.map((poster, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedPoster(poster)}
+              className="content-card text-left hover:scale-[1.02] transition-transform"
+            >
+              <h4 className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                {poster.title}
+              </h4>
+
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {poster.authors}
+              </p>
+
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                {poster.conference}
+              </p>
+
+              <p className="text-sm mt-2 text-slate-500 dark:text-slate-400">
+                {poster.description}
+              </p>
+
+              <div className="mt-3 text-blue-500 font-medium">
+                View Poster →
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </PageWrapper>
+  );
+};
 // --- Main App Component ---
 export default function App() {
   const [page, setPage] = useState('home');
@@ -1016,12 +1143,13 @@ export default function App() {
   useEffect(() => { document.documentElement.classList.toggle('dark', isDarkMode); }, [isDarkMode]);
 
   // In the App component, find navLinks and replace it with this:
-const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Research' }, { id: 'cv', title: 'CV' }, { id: 'simulations', title: 'Simulations' }, { id: 'blog', title: 'Resources' }, { id: 'reports', title: 'Reports' }, { id: 'gallery', title: 'Gallery' }, { id: 'contact', title: 'Contact' } ];
+const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Research' }, { id: 'cv', title: 'CV' }, { id: 'publications', title: 'Publications' }, { id: 'simulations', title: 'Simulations' }, { id: 'blog', title: 'Resources' }, { id: 'reports', title: 'Reports' }, { id: 'gallery', title: 'Gallery' }, { id: 'contact', title: 'Contact' } ];
   const renderPage = () => {
     switch (page) {
       case 'home': return <HomePage />;
       case 'research': return <ResearchPage />;
       case 'cv': return <CVPage />;
+      case 'publications': return <PublicationsPage />;
       case 'simulations': return <SimulationsPage isDarkMode={isDarkMode} />;
       case 'blog': return <BlogPage />;
       case 'reports': return <ReportsPage />;
