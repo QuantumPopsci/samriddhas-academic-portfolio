@@ -1096,6 +1096,7 @@ const SimulationsPage = ({ isDarkMode }) => (
 const BlogPage = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
 
+  // ---------- OPEN ARTICLE ----------
   if (selectedArticle) {
     return (
       <BookViewer
@@ -1105,8 +1106,10 @@ const BlogPage = () => {
     );
   }
 
+  // ---------- BLOG GRID ----------
   return (
     <PageWrapper title="Research Notes & Articles">
+
       <p className="text-lg text-slate-700 dark:text-slate-300 mb-8">
         A collection of my personal notes, expositions, and pedagogical articles on quantum matter and theoretical physics.
       </p>
@@ -1115,13 +1118,12 @@ const BlogPage = () => {
 
         {articlesData.map((article, index) => (
           <button
-            <button
-  key={index}
-  onClick={() => setSelectedArticle(article)}
-  className="group relative overflow-hidden rounded-xl bg-white/70 dark:bg-slate-800/50 backdrop-blur-md shadow-md hover:shadow-2xl hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-2 border border-slate-200/50 dark:border-slate-700/50"
->
+            key={index}
+            onClick={() => setSelectedArticle(article)}
+            className="group relative overflow-hidden rounded-xl bg-white/70 dark:bg-slate-800/50 backdrop-blur-md shadow-md hover:shadow-2xl hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-2 border border-slate-200/50 dark:border-slate-700/50 text-left"
+          >
 
-            {/* Cover */}
+            {/* COVER */}
             <div className="h-48 overflow-hidden">
               <img
                 src={article.cover}
@@ -1129,12 +1131,16 @@ const BlogPage = () => {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
             </div>
-            {/* Category + Date */}
-  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-    {article.category} • {article.date}
-  </p>
-            {/* Content */}
+
+            {/* CONTENT */}
             <div className="p-5">
+
+              {(article.category || article.date) && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                  {article.category} {article.category && article.date ? "•" : ""} {article.date}
+                </p>
+              )}
+
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                 {article.title}
               </h3>
@@ -1146,12 +1152,14 @@ const BlogPage = () => {
               <p className="mt-4 text-blue-600 dark:text-blue-400 font-semibold">
                 Read Article →
               </p>
+
             </div>
 
           </button>
         ))}
 
       </div>
+
     </PageWrapper>
   );
 };
@@ -1201,37 +1209,83 @@ import HTMLFlipBook from "react-pageflip";
 
 const BookViewer = ({ article, onClose }) => {
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 animate-fade-in-up">
 
-      {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-      >
-        ✕
-      </button>
+      {/* -------- HEADER -------- */}
+      <div className="absolute top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-black/40 backdrop-blur-md text-white">
 
-      <div className="w-full max-w-5xl h-[80vh]">
+        {/* Title */}
+        <h2 className="text-lg md:text-xl font-semibold truncate">
+          {article.title}
+        </h2>
 
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="bg-white/10 hover:bg-white/20 transition-colors px-3 py-1 rounded-md"
+        >
+          Close ✕
+        </button>
+      </div>
+
+      {/* -------- CONTENT -------- */}
+      <div className="w-full max-w-5xl h-[80vh] mt-12 flex items-center justify-center">
+
+        {/* -------- PDF VIEW -------- */}
         {article.type === "pdf" ? (
-          <iframe
-            src={`${article.file}#view=FitH`}
-            className="w-full h-full rounded-lg shadow-xl"
-          />
+          <div className="w-full h-full glass-card rounded-xl overflow-hidden">
+
+            <iframe
+              src={`${article.file}#view=FitH&toolbar=0&navpanes=0`}
+              title={article.title}
+              className="w-full h-full"
+            />
+
+          </div>
         ) : (
-          <HTMLFlipBook width={400} height={600}>
-            {article.pages.map((img, i) => (
-              <div key={i} className="bg-white flex items-center justify-center">
-                <img src={img} alt={`page-${i}`} className="w-full h-full object-contain" />
-              </div>
-            ))}
-          </HTMLFlipBook>
+
+          /* -------- PAGE FLIP VIEW -------- */
+          <div className="flex justify-center items-center w-full">
+
+            <HTMLFlipBook
+              width={400}
+              height={600}
+              size="stretch"
+              minWidth={300}
+              maxWidth={800}
+              minHeight={400}
+              maxHeight={900}
+              maxShadowOpacity={0.5}
+              showCover={true}
+              mobileScrollSupport={true}
+              className="page-flip"
+            >
+
+              {article.pages.map((img, i) => (
+                <div
+                  key={i}
+                  className="bg-white flex items-center justify-center p-4"
+                >
+                  <img
+                    src={img}
+                    alt={`page-${i}`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ))}
+
+            </HTMLFlipBook>
+
+          </div>
         )}
 
       </div>
+
     </div>
   );
 };
+
+export default BookViewer;
 // --- Main Reports Page ---
 const ReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState(null);
