@@ -32,7 +32,11 @@ const articlesData = [
     pages: [
       "/articles/cmp/page1.png",
       "/articles/cmp/page2.png",
-      "/articles/cmp/page3.png"
+      "/articles/cmp/page3.png",
+      "/articles/cmp/page4.png",
+      "/articles/cmp/page5.png",
+      "/articles/cmp/page6.png",
+      "/articles/cmp/page7.png"
     ],
     category: "Why should I care about X?",
     date: "2026"
@@ -45,7 +49,9 @@ const articlesData = [
     pages: [
       "/articles/nambu/page1.png",
       "/articles/nambu/page2.png",
-      "/articles/nambu/page3.png"
+      "/articles/nambu/page3.png",
+      "/articles/nambu/page4.png",
+      "/articles/nambu/page5.png"
     ],
     category: "Pillars of Physics",
     date: "2026"
