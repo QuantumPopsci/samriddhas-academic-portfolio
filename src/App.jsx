@@ -27,10 +27,10 @@ const articlesData = [
   {
     title: "Why Should I Care About Condensed Matter Physics?",
     description: "An introduction to condensed matter physics, emergence, and topology.",
-    cover: "/articles/cmp_cover.png",
+    cover1: "/articles/cmp_cover.png",
+    cover: "/articles/cmp/page1.png",
     type: "images",
     pages: [
-      "/articles/cmp/page1.png",
       "/articles/cmp/page2.png",
       "/articles/cmp/page3.png",
       "/articles/cmp/page4.png",
@@ -44,10 +44,10 @@ const articlesData = [
   {
     title: "Yoichiro Nambu: Symmetry, Spontaneity, and the Unity of Physics",
     description: "Spontaneous symmetry breaking and its role in modern physics.",
-    cover: "/articles/nambu_cover.png",
+    cover1: "/articles/nambu_cover.png",
+    cover: "/articles/nambu/page1.png",
     type: "images",
     pages: [
-      "/articles/nambu/page1.png",
       "/articles/nambu/page2.png",
       "/articles/nambu/page3.png",
       "/articles/nambu/page4.png",
@@ -1140,7 +1140,7 @@ const BlogPage = () => {
             {/* COVER */}
             <div className="h-48 overflow-hidden">
               <img
-                src={article.cover}
+                src={article.cover1}
                 alt={article.title}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
