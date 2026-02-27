@@ -1224,67 +1224,82 @@ import HTMLFlipBook from "react-pageflip";
 const BookViewer = ({ article, onClose }) => {
   if (!article) return null;
 
-  // ---------- FIX EVEN PAGES ----------
   const pages = article.pages || [];
-  const safePages =
-    pages.length % 2 === 0 ? pages : [...pages, null];
+
+  // ---- Ensure EVEN pages ----
+  let safePages = pages.length % 2 === 0 ? pages : [...pages, null];
+
+  // ---- Add Back Cover ----
+  safePages = [...safePages, "/bc.png"];
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-2">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col items-center justify-center">
 
-      {/* -------- HEADER -------- */}
-      <div className="absolute top-0 left-0 w-full flex justify-between items-center px-4 py-3 bg-black/40 backdrop-blur-md text-white z-50">
+      {/* ================= HEADER ================= */}
+      <div className="absolute top-0 left-0 w-full flex justify-between items-center px-4 md:px-8 py-3 bg-black/40 backdrop-blur-md text-white z-50 border-b border-white/10">
+
         <h2 className="text-sm md:text-lg font-semibold truncate max-w-[70%]">
           {article.title}
         </h2>
 
         <button
           onClick={onClose}
-          className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-md text-sm"
+          className="px-3 py-1 rounded-md bg-white/10 hover:bg-white/20 transition"
         >
           ✕
         </button>
       </div>
 
-      {/* -------- CONTENT -------- */}
-      <div className="w-full h-full flex items-center justify-center pt-12">
+      {/* ================= CONTENT ================= */}
+      <div className="w-full h-full flex items-center justify-center pt-14 px-2">
 
-        {/* ===== PDF ===== */}
+        {/* ===== PDF VIEW ===== */}
         {article.type === "pdf" ? (
-          <div className="w-full h-full max-w-5xl bg-white rounded-lg overflow-hidden shadow-xl">
+          <div className="w-full max-w-5xl h-[85vh] bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-xl shadow-2xl overflow-hidden border border-white/20">
+
             <iframe
               src={`${article.file}#view=FitH&toolbar=0&navpanes=0`}
               title={article.title}
               className="w-full h-full"
             />
+
           </div>
         ) : (
 
           /* ===== FLIPBOOK ===== */
-          <div className="w-full flex justify-center">
+          <div className="flex justify-center items-center w-full">
 
             <HTMLFlipBook
-              width={350}      // desktop width
-              height={500}     // desktop height
-              minWidth={280}   // mobile width
-              maxWidth={800}
+              width={380}
+              height={520}
+              minWidth={280}
+              maxWidth={900}
               minHeight={400}
               maxHeight={900}
+              size="stretch"
               showCover={true}
               drawShadow={true}
-              flippingTime={700}
+              flippingTime={800}
               useMouseEvents={true}
               mobileScrollSupport={true}
               clickEventForward={true}
-              usePortrait={true}   // 🔥 IMPORTANT FOR MOBILE
+              usePortrait={true}
               className="page-flip"
             >
 
+              {/* ========= FRONT COVER ========= */}
+              <div className="page-cover">
+                <img
+                  src={article.cover}
+                  alt="cover"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* ========= INNER PAGES ========= */}
               {safePages.map((img, i) => (
-                <div
-                  key={i}
-                  className="w-full h-full bg-white flex items-center justify-center"
-                >
+                <div key={i} className="page">
+
                   {img ? (
                     <img
                       src={img}
@@ -1294,6 +1309,12 @@ const BookViewer = ({ article, onClose }) => {
                   ) : (
                     <div className="w-full h-full bg-white"></div>
                   )}
+
+                  {/* Page number */}
+                  <div className="page-number">
+                    {i + 1}
+                  </div>
+
                 </div>
               ))}
 
@@ -1301,7 +1322,6 @@ const BookViewer = ({ article, onClose }) => {
 
           </div>
         )}
-
       </div>
     </div>
   );
