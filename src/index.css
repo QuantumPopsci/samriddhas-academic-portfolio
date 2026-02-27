@@ -1,3 +1,73 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---------- GLOBAL STYLES ---------- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200;
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+/* ---------- SCROLLBAR (VERY NICE TOUCH) ---------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
+/* ---------- PAGE FLIP SHADOW ---------- */
+
+.page-flip {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- GLASS CARD EFFECT ---------- */
+
+.glass-card {
+  @apply bg-white/70 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50;
+}
+
+/* ---------- HOVER GLOW (ACADEMIC STYLE) ---------- */
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+}
+
+/* ---------- FADE ANIMATIONS ---------- */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease forwards;
+}
