@@ -1110,7 +1110,11 @@ const SimulationsPage = ({ isDarkMode }) => (
 const BlogPage = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
 
-  // ---------- OPEN ARTICLE ----------
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [year, setYear] = useState("All");
+
+  // ---------- OPEN VIEWER ----------
   if (selectedArticle) {
     return (
       <BookViewer
@@ -1120,17 +1124,72 @@ const BlogPage = () => {
     );
   }
 
-  // ---------- BLOG GRID ----------
+  // ---------- FILTER OPTIONS ----------
+  const categories = ["All", ...new Set(articlesData.map(a => a.category))];
+  const years = ["All", ...new Set(articlesData.map(a => a.date))];
+
+  // ---------- FILTER LOGIC ----------
+  const filteredArticles = articlesData.filter(article => {
+    const matchesSearch =
+      article.title.toLowerCase().includes(search.toLowerCase()) ||
+      article.description.toLowerCase().includes(search.toLowerCase());
+
+    const matchesCategory =
+      category === "All" || article.category === category;
+
+    const matchesYear =
+      year === "All" || article.date === year;
+
+    return matchesSearch && matchesCategory && matchesYear;
+  });
+
   return (
     <PageWrapper title="Research Notes & Articles">
 
       <p className="text-lg text-slate-700 dark:text-slate-300 mb-8">
-        A collection of my personal notes, expositions, and articles on physics (and non-physics) content which I find time to write in between assignments.
+        A collection of my personal notes, expositions, and articles on physics (and/or non-physics) stuff, if I get time between assignments.
       </p>
 
+      {/* ================= FILTER BAR ================= */}
+      <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        {/* SEARCH */}
+        <input
+          type="text"
+          placeholder="Search articles..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        {/* CATEGORY */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 backdrop-blur-md"
+        >
+          {categories.map((cat, i) => (
+            <option key={i}>{cat}</option>
+          ))}
+        </select>
+
+        {/* YEAR */}
+        <select
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 backdrop-blur-md"
+        >
+          {years.map((y, i) => (
+            <option key={i}>{y}</option>
+          ))}
+        </select>
+
+      </div>
+
+      {/* ================= GRID ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
-        {articlesData.map((article, index) => (
+        {filteredArticles.map((article, index) => (
           <button
             key={index}
             onClick={() => setSelectedArticle(article)}
@@ -1140,7 +1199,7 @@ const BlogPage = () => {
             {/* COVER */}
             <div className="h-48 overflow-hidden">
               <img
-                src={article.cover1}
+                src={article.cover}
                 alt={article.title}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
@@ -1149,11 +1208,9 @@ const BlogPage = () => {
             {/* CONTENT */}
             <div className="p-5">
 
-              {(article.category || article.date) && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                  {article.category} {article.category && article.date ? "•" : ""} {article.date}
-                </p>
-              )}
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                {article.category} • {article.date}
+              </p>
 
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                 {article.title}
@@ -1174,10 +1231,16 @@ const BlogPage = () => {
 
       </div>
 
+      {/* ================= NO RESULTS ================= */}
+      {filteredArticles.length === 0 && (
+        <p className="text-center text-slate-500 mt-10">
+          No articles found.
+        </p>
+      )}
+
     </PageWrapper>
   );
 };
-
 const GalleryPage = () => (
     <PageWrapper title="Gallery">
         <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">A collection of plots, figures, and non-academic photos from my research projects, studies and Academic Visits.</p>
