@@ -26,21 +26,29 @@ const blogPosts = [
 const articlesData = [
   {
     title: "Why Should I Care About Condensed Matter Physics?",
-    description: "An introduction to condensed matter physics, emphasizing emergence, band theory, and topology.",
+    description: "An introduction to condensed matter physics, emergence, and topology.",
     cover: "/articles/cmp_cover.png",
-    type: "pdf",
-    file: "/articles/cmp.pdf",
-    date: "2026",
-    category: "Condensed Matter Physics"
+    type: "images",
+    pages: [
+      "/articles/cmp/page1.png",
+      "/articles/cmp/page2.png",
+      "/articles/cmp/page3.png"
+    ],
+    category: "Why should I care about X?",
+    date: "2026"
   },
   {
     title: "Yoichiro Nambu: Symmetry, Spontaneity, and the Unity of Physics",
-    description: "Spontaneous symmetry breaking and its role across condensed matter and particle physics.",
+    description: "Spontaneous symmetry breaking and its role in modern physics.",
     cover: "/articles/nambu_cover.png",
-    type: "pdf",
-    file: "/articles/nambu.pdf",
-    date: "2026",
-    category: "Pillars of Physics"
+    type: "images",
+    pages: [
+      "/articles/nambu/page1.png",
+      "/articles/nambu/page2.png",
+      "/articles/nambu/page3.png"
+    ],
+    category: "Pillars of Physics",
+    date: "2026"
   }
 ];
 const notesData = [
@@ -1208,18 +1216,18 @@ const PDFModalViewer = ({ file, title, onClose }) => {
 import HTMLFlipBook from "react-pageflip";
 
 const BookViewer = ({ article, onClose }) => {
+  if (!article) return null;
+
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 animate-fade-in-up">
 
       {/* -------- HEADER -------- */}
-      <div className="absolute top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-black/40 backdrop-blur-md text-white">
-
-        {/* Title */}
-        <h2 className="text-lg md:text-xl font-semibold truncate">
+      <div className="absolute top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-black/40 backdrop-blur-md text-white z-50">
+        
+        <h2 className="text-lg md:text-xl font-semibold truncate max-w-[80%]">
           {article.title}
         </h2>
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="bg-white/10 hover:bg-white/20 transition-colors px-3 py-1 rounded-md"
@@ -1229,9 +1237,9 @@ const BookViewer = ({ article, onClose }) => {
       </div>
 
       {/* -------- CONTENT -------- */}
-      <div className="w-full max-w-5xl h-[80vh] mt-12 flex items-center justify-center">
+      <div className="w-full max-w-6xl h-[85vh] mt-12 flex items-center justify-center">
 
-        {/* -------- PDF VIEW -------- */}
+        {/* ================= PDF VIEW ================= */}
         {article.type === "pdf" ? (
           <div className="w-full h-full glass-card rounded-xl overflow-hidden">
 
@@ -1244,37 +1252,43 @@ const BookViewer = ({ article, onClose }) => {
           </div>
         ) : (
 
-          /* -------- PAGE FLIP VIEW -------- */
-          <div className="flex justify-center items-center w-full">
+          /* ================= FLIPBOOK ================= */
+          <div className="flex flex-col items-center justify-center w-full h-full">
 
-            <HTMLFlipBook
-              width={400}
-              height={600}
-              size="stretch"
-              minWidth={300}
-              maxWidth={800}
-              minHeight={400}
-              maxHeight={900}
-              maxShadowOpacity={0.5}
-              showCover={true}
-              mobileScrollSupport={true}
-              className="page-flip"
-            >
+            {article.pages && article.pages.length > 0 ? (
+              <HTMLFlipBook
+                width={400}
+                height={600}
+                size="stretch"
+                minWidth={300}
+                maxWidth={900}
+                minHeight={400}
+                maxHeight={900}
+                maxShadowOpacity={0.5}
+                showCover={true}
+                mobileScrollSupport={true}
+                drawShadow={true}
+                flippingTime={800}
+                className="page-flip"
+              >
 
-              {article.pages.map((img, i) => (
-                <div
-                  key={i}
-                  className="bg-white flex items-center justify-center p-4"
-                >
-                  <img
-                    src={img}
-                    alt={`page-${i}`}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              ))}
+                {article.pages.map((img, i) => (
+                  <div
+                    key={i}
+                    className="bg-white flex items-center justify-center p-2"
+                  >
+                    <img
+                      src={img}
+                      alt={`page-${i}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ))}
 
-            </HTMLFlipBook>
+              </HTMLFlipBook>
+            ) : (
+              <p className="text-white">No pages available</p>
+            )}
 
           </div>
         )}
@@ -1284,6 +1298,7 @@ const BookViewer = ({ article, onClose }) => {
     </div>
   );
 };
+
 // --- Main Reports Page ---
 const ReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState(null);
