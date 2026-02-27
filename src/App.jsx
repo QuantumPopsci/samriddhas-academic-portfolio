@@ -1218,6 +1218,13 @@ import HTMLFlipBook from "react-pageflip";
 const BookViewer = ({ article, onClose }) => {
   if (!article) return null;
 
+  // ---------- FIX: Ensure EVEN pages ----------
+  const originalPages = article.pages || [];
+  const safePages =
+    originalPages.length % 2 === 0
+      ? originalPages
+      : [...originalPages, null]; // add blank page
+
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 animate-fade-in-up">
 
@@ -1241,7 +1248,7 @@ const BookViewer = ({ article, onClose }) => {
 
         {/* ================= PDF VIEW ================= */}
         {article.type === "pdf" ? (
-          <div className="w-full h-full glass-card rounded-xl overflow-hidden">
+          <div className="w-full h-full glass-card rounded-xl overflow-hidden shadow-2xl">
 
             <iframe
               src={`${article.file}#view=FitH&toolbar=0&navpanes=0`}
@@ -1255,7 +1262,7 @@ const BookViewer = ({ article, onClose }) => {
           /* ================= FLIPBOOK ================= */
           <div className="flex flex-col items-center justify-center w-full h-full">
 
-            {article.pages && article.pages.length > 0 ? (
+            {safePages.length > 0 ? (
               <HTMLFlipBook
                 width={400}
                 height={600}
@@ -1269,19 +1276,26 @@ const BookViewer = ({ article, onClose }) => {
                 mobileScrollSupport={true}
                 drawShadow={true}
                 flippingTime={800}
+                usePortrait={false}
+                startZIndex={10}
+                autoSize={true}
                 className="page-flip"
               >
 
-                {article.pages.map((img, i) => (
+                {safePages.map((img, i) => (
                   <div
                     key={i}
-                    className="bg-white flex items-center justify-center p-2"
+                    className="w-full h-full bg-white flex items-center justify-center"
                   >
-                    <img
-                      src={img}
-                      alt={`page-${i}`}
-                      className="w-full h-full object-contain"
-                    />
+                    {img ? (
+                      <img
+                        src={img}
+                        alt={`page-${i}`}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white"></div>
+                    )}
                   </div>
                 ))}
 
