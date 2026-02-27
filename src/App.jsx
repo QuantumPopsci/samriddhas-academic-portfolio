@@ -1199,7 +1199,7 @@ const BlogPage = () => {
             {/* COVER */}
             <div className="h-48 overflow-hidden">
               <img
-                src={article.cover}
+                src={article.cover1}
                 alt={article.title}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
