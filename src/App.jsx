@@ -1284,8 +1284,6 @@ const BookViewer = ({ article, onClose }) => {
     </div>
   );
 };
-
-export default BookViewer;
 // --- Main Reports Page ---
 const ReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState(null);
