@@ -1125,7 +1125,7 @@ const BlogPage = () => {
     <PageWrapper title="Research Notes & Articles">
 
       <p className="text-lg text-slate-700 dark:text-slate-300 mb-8">
-        A collection of my personal notes, expositions, and pedagogical articles on quantum matter and theoretical physics.
+        A collection of my personal notes, expositions, and articles on physics (and non-physics) content which I find time to write in between assignments.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
