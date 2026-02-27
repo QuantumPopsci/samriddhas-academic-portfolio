@@ -1438,7 +1438,7 @@ export default function App() {
   useEffect(() => { document.documentElement.classList.toggle('dark', isDarkMode); }, [isDarkMode]);
 
   // In the App component, find navLinks and replace it with this:
-const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Research' }, { id: 'cv', title: 'CV' }, { id: 'publications', title: 'Publications' }, { id: 'simulations', title: 'Simulations' }, { id: 'blog', title: 'Resources' }, { id: 'reports', title: 'Reports' }, { id: 'gallery', title: 'Gallery' }, { id: 'contact', title: 'Contact' } ];
+const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Research' }, { id: 'cv', title: 'CV' }, { id: 'publications', title: 'Publications' }, { id: 'simulations', title: 'Simulations' }, { id: 'blog', title: 'My Blog' }, { id: 'reports', title: 'Reports' }, { id: 'gallery', title: 'Gallery' }, { id: 'contact', title: 'Contact' } ];
   const renderPage = () => {
     switch (page) {
       case 'home': return <HomePage />;
