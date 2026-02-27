@@ -23,6 +23,26 @@ const blogPosts = [
   { title: "Quantum magnonics: when magnon spintronics meets quantum information science", summary: "Exploring the highly interdisciplinary field of quantum magnonics, which combines spintronics, quantum optics and quantum information, this gives an overview of the recent developments concerning the quantum states of magnons and their hybridization with mature quantum platforms.", link: "https://arxiv.org/abs/2111.14241", tags: ["Magnonics", "Quantum Matter", "Quantum Information"] },
   { title: "Quantum Decoherence", summary: "Exploring the paradigm of Quantum to Classical Transition, this paper is a pedagogical overview of Decoherence in Quantum Systems", link: "https://arxiv.org/abs/1911.06282", tags: ["Quantum Decoherence", "Quantum Master Equations", "Quantum Information"] }
 ];
+const articlesData = [
+  {
+    title: "Why Should I Care About Condensed Matter Physics?",
+    description: "An introduction to condensed matter physics, emphasizing emergence, band theory, and topology.",
+    cover: "/articles/cmp_cover.png",
+    type: "pdf",
+    file: "/articles/cmp.pdf",
+    date: "2026",
+    category: "Condensed Matter Physics"
+  },
+  {
+    title: "Yoichiro Nambu: Symmetry, Spontaneity, and the Unity of Physics",
+    description: "Spontaneous symmetry breaking and its role across condensed matter and particle physics.",
+    cover: "/articles/nambu_cover.png",
+    type: "pdf",
+    file: "/articles/nambu.pdf",
+    date: "2026",
+    category: "Pillars of Physics"
+  }
+];
 const notesData = [
     {
         title: "PHY 642: Special Topics in Quantum Mechanics Notes",
@@ -1073,11 +1093,68 @@ const SimulationsPage = ({ isDarkMode }) => (
     </PageWrapper>
 );
 
-const BlogPage = () => (
-    <PageWrapper title="Papers & Articles">
-        <div className="space-y-8">{blogPosts.map((post, index) => (<a href={post.link} target="_blank" rel="noopener noreferrer" key={index} className="block content-card"><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{post.title}</h3><div className="flex flex-wrap gap-2 my-2">{post.tags.map(tag => <span key={tag} className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full">{tag}</span>)}</div><p className="text-slate-600 dark:text-slate-300 my-4">{post.summary}</p><div className="font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400">Read Paper &rarr;</div></a>))}</div>
+const BlogPage = () => {
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
+  if (selectedArticle) {
+    return (
+      <BookViewer
+        article={selectedArticle}
+        onClose={() => setSelectedArticle(null)}
+      />
+    );
+  }
+
+  return (
+    <PageWrapper title="Research Notes & Articles">
+      <p className="text-lg text-slate-700 dark:text-slate-300 mb-8">
+        A collection of my personal notes, expositions, and pedagogical articles on quantum matter and theoretical physics.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        {articlesData.map((article, index) => (
+          <button
+            <button
+  key={index}
+  onClick={() => setSelectedArticle(article)}
+  className="group relative overflow-hidden rounded-xl bg-white/70 dark:bg-slate-800/50 backdrop-blur-md shadow-md hover:shadow-2xl hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-2 border border-slate-200/50 dark:border-slate-700/50"
+>
+
+            {/* Cover */}
+            <div className="h-48 overflow-hidden">
+              <img
+                src={article.cover}
+                alt={article.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              />
+            </div>
+            {/* Category + Date */}
+  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+    {article.category} • {article.date}
+  </p>
+            {/* Content */}
+            <div className="p-5">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                {article.title}
+              </h3>
+
+              <p className="text-slate-600 dark:text-slate-300 mt-2 text-sm">
+                {article.description}
+              </p>
+
+              <p className="mt-4 text-blue-600 dark:text-blue-400 font-semibold">
+                Read Article →
+              </p>
+            </div>
+
+          </button>
+        ))}
+
+      </div>
     </PageWrapper>
-);
+  );
+};
 
 const GalleryPage = () => (
     <PageWrapper title="Gallery">
@@ -1120,7 +1197,41 @@ const PDFModalViewer = ({ file, title, onClose }) => {
     </div>
   );
 };
+import HTMLFlipBook from "react-pageflip";
 
+const BookViewer = ({ article, onClose }) => {
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
+
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
+      >
+        ✕
+      </button>
+
+      <div className="w-full max-w-5xl h-[80vh]">
+
+        {article.type === "pdf" ? (
+          <iframe
+            src={`${article.file}#view=FitH`}
+            className="w-full h-full rounded-lg shadow-xl"
+          />
+        ) : (
+          <HTMLFlipBook width={400} height={600}>
+            {article.pages.map((img, i) => (
+              <div key={i} className="bg-white flex items-center justify-center">
+                <img src={img} alt={`page-${i}`} className="w-full h-full object-contain" />
+              </div>
+            ))}
+          </HTMLFlipBook>
+        )}
+
+      </div>
+    </div>
+  );
+};
 // --- Main Reports Page ---
 const ReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState(null);
