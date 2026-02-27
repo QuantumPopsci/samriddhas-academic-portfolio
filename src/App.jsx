@@ -1276,7 +1276,6 @@ const BookViewer = ({ article, onClose }) => {
               maxWidth={900}
               minHeight={400}
               maxHeight={900}
-              size="stretch"
               showCover={true}
               drawShadow={true}
               flippingTime={800}
