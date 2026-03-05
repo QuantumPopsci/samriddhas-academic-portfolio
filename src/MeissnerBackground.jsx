@@ -73,7 +73,7 @@ const MeissnerBackground = () => {
           else ctx.lineTo(x, y);
         }
 
-        ctx.strokeStyle = "rgba(59,130,246,0.35)";
+        ctx.strokeStyle = "rgba(14,165,233,0.35)";
         ctx.lineWidth = 2;
         ctx.stroke();
 
