@@ -43,24 +43,7 @@ body {
   opacity: 0.35;
   z-index: -1;
 }
-
-.blob-blue {
-  background: #f59e0b;
-  bottom: -200px;
-  right: -200px;
-}
-
-.blob-purple {
-  background: #ea580c;
-  top: -200px;
-  left: -200px;
-}
-
-.blob-cyan {
-  background: #78350f;
-  top: 40%;
-  left: 60%;
-}
+.blob-blue { background: #3b82f6; bottom: -200px; right: -200px; } .blob-purple { background: #8b5cf6; top: -200px; left: -200px; } .blob-cyan { background: #06b6d4; top: 40%; left: 60%; }
 /* ================= BLACK HOLE BACKGROUND ================= */
 /* ===================================================== */
 /* ================= SCROLLBAR ========================== */
