@@ -15,7 +15,13 @@ html {
 body {
   @apply text-slate-800 dark:text-slate-200;
   font-feature-settings: "liga" 1, "calt" 1;
-background: radial-gradient(circle at 50% 40%, #1c1917 0%, #09090b 45%, #000000 100%);
+  background: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #e0f2fe 35%,
+    #f1f5f9 70%,
+    #eef2ff 100%
+  );
   min-height: 100vh;
 }
 
@@ -56,71 +62,6 @@ background: radial-gradient(circle at 50% 40%, #1c1917 0%, #09090b 45%, #000000 
   left: 60%;
 }
 /* ================= BLACK HOLE BACKGROUND ================= */
-
-.blackhole-bg {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #000000 20%, #020617 70%, #000000 100%);
-  overflow: hidden;
-  z-index: -2;
-}
-
-/* Event horizon */
-.blackhole-core {
-  position: absolute;
-  width: 220px;
-  height: 220px;
-  background: radial-gradient(circle, #000 60%, #020617 80%);
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 60px rgba(0,0,0,0.9);
-  z-index: 3;
-}
-
-/* Accretion disk glow */
-.accretion-disk {
-  position: absolute;
-  width: 900px;
-  height: 900px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(255,220,120,0.9) 5%, rgba(255,180,60,0.6) 20%, rgba(255,120,0,0.3) 35%, transparent 60%);
-  filter: blur(30px);
-  animation: spinDisk 35s linear infinite;
-}
-
-/* Outer plasma glow */
-.accretion-light {
-  position: absolute;
-  width: 1200px;
-  height: 1200px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle,
-      rgba(255,200,80,0.25) 20%,
-      rgba(255,140,40,0.15) 40%,
-      transparent 70%);
-  animation: spinDiskReverse 60s linear infinite;
-}
-
-/* rotation */
-@keyframes spinDisk {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-@keyframes spinDiskReverse {
-  from { transform: translate(-50%, -50%) rotate(360deg); }
-  to { transform: translate(-50%, -50%) rotate(0deg); }
-}
 /* ===================================================== */
 /* ================= SCROLLBAR ========================== */
 /* ===================================================== */
