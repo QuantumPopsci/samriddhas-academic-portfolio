@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
-import MeissnerField from "./components/MeissnerField";
 import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -1580,7 +1579,9 @@ const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Rese
   return (
     <div className="relative min-h-screen text-slate-800 dark:text-slate-200 font-sans transition-colors duration-300">
       {/* ===== BACKGROUND BLOBS ===== */}
-<MeissnerField />
+<div className="bg-blob blob-blue"></div>
+    <div className="bg-blob blob-purple"></div>
+    <div className="bg-blob blob-cyan"></div>
       <div className="relative z-10">
         <header className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-md">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
