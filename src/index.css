@@ -41,14 +41,14 @@ body {
 
 .blob-blue {
   background: #3b82f6;
-  top: -200px;
-  left: -200px;
+  bottom: -200px;
+  right: -200px;
 }
 
 .blob-purple {
   background: #8b5cf6;
-  bottom: -200px;
-  right: -200px;
+  top: -200px;
+  left: -200px;
 }
 
 .blob-cyan {
