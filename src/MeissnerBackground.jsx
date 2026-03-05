@@ -4,6 +4,7 @@ const MeissnerBackground = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
@@ -13,77 +14,95 @@ const MeissnerBackground = () => {
     canvas.width = width;
     canvas.height = height;
 
-    const mouse = { x: width / 2, y: height / 2 };
+    const cx = width / 2;
+    const cy = height / 2;
+    const radius = 140;
 
-    window.addEventListener("mousemove", (e) => {
+    const mouse = { x: width/2, y: height/2 };
+
+    window.addEventListener("mousemove", e=>{
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     });
 
-    const cx = width / 2;
-    const cy = height / 2;
-    const radius = 150;
-
     const lines = [];
 
-    for (let i = 0; i < 50; i++) {
+    const lineCount = 60;
+
+    for(let i=0;i<lineCount;i++){
       lines.push({
-        baseY: (i / 50) * height,
-        phase: Math.random() * Math.PI * 2,
+        baseY: (i/(lineCount-1))*height,
+        phase: Math.random()*Math.PI*2
       });
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, width, height);
+    function draw(){
+
+      ctx.clearRect(0,0,width,height);
 
       // draw superconducting disk
       ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(15,23,42,0.9)";
+      ctx.arc(cx,cy,radius,0,Math.PI*2);
+      ctx.fillStyle="rgba(15,23,42,0.9)";
       ctx.fill();
 
-      lines.forEach((line) => {
+      lines.forEach(line=>{
+
         ctx.beginPath();
 
-        for (let x = 0; x < width; x += 8) {
-          let y = line.baseY;
+        for(let x=0;x<width;x+=6){
 
-          const dx = x - cx;
-          const dy = y - cy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          let y=line.baseY;
 
-          // --- MEISSNER EXCLUSION ---
-          if (dist < radius + 120) {
-            const angle = Math.atan2(dy, dx);
-            const push = (radius + 120 - dist) * 0.8;
+          const dx=x-cx;
+          const dy=y-cy;
 
-            y += Math.sin(angle) * push;
+          const dist=Math.sqrt(dx*dx+dy*dy);
+
+          // ---------- Meissner exclusion ----------
+          if(dist < radius*2){
+
+            const angle=Math.atan2(dy,dx);
+
+            const strength=(radius*2-dist)/(radius*2);
+
+            const tangentX=-Math.sin(angle);
+            const tangentY=Math.cos(angle);
+
+            y += tangentY * strength * 120;
+
           }
 
-          // --- CURSOR INTERACTION ---
-          const mx = x - mouse.x;
-          const my = y - mouse.y;
-          const md = Math.sqrt(mx * mx + my * my);
+          // ---------- cursor perturbation ----------
+          const mdx=x-mouse.x;
+          const mdy=y-mouse.y;
 
-          const cursorRadius = 60; // small cursor effect
+          const md=Math.sqrt(mdx*mdx+mdy*mdy);
 
-          if (md < cursorRadius) {
-            const influence = (cursorRadius - md) / cursorRadius;
-            y += my * influence * 0.5;
+          const cursorRadius=40;
+
+          if(md<cursorRadius){
+
+            const f=(cursorRadius-md)/cursorRadius;
+
+            y += mdy * f * 0.3;
+
           }
 
-          // smooth wave motion
-          y += Math.sin(x * 0.01 + line.phase) * 2;
+          // ---------- smooth oscillation ----------
+          y += Math.sin(x*0.01 + line.phase)*2;
 
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+          if(x===0) ctx.moveTo(x,y);
+          else ctx.lineTo(x,y);
+
         }
 
-        ctx.strokeStyle = "rgba(34,211,238,0.45)";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle="rgba(56,189,248,0.45)";
+        ctx.lineWidth=2;
         ctx.stroke();
 
         line.phase += 0.01;
+
       });
 
       requestAnimationFrame(draw);
@@ -91,14 +110,17 @@ const MeissnerBackground = () => {
 
     draw();
 
-    window.addEventListener("resize", () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
+    window.addEventListener("resize",()=>{
+
+      width=window.innerWidth;
+      height=window.innerHeight;
+
+      canvas.width=width;
+      canvas.height=height;
+
     });
 
-  }, []);
+  },[]);
 
   return <canvas ref={canvasRef} className="fixed inset-0 -z-10" />;
 };
