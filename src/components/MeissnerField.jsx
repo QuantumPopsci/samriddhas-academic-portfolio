@@ -22,7 +22,6 @@ const MeissnerField = () => {
     const cy = height/2;
 
     const radius = 150;
-
     const B0 = 1;
 
     const mouse = {x:width/2,y:height/2};
@@ -32,47 +31,42 @@ const MeissnerField = () => {
       mouse.y = e.clientY;
     });
 
-    function dipoleField(x,y,px,py,radius){
+    function field(x,y){
 
-      const dx = x-px;
-      const dy = y-py;
+      const dx = x-cx;
+      const dy = y-cy;
 
       const r = Math.sqrt(dx*dx+dy*dy);
-
-      if(r < radius) return {Bx:0,By:0,inside:true};
-
-      const r5 = Math.pow(r,5);
-
-      const mx = -B0*Math.pow(radius,3);
-
-      const Bx = (3*dx*dx*mx - r*r*mx)/r5;
-      const By = (3*dx*dy*mx)/r5;
-
-      return {Bx,By,inside:false};
-
-    }
-
-    function field(x,y){
 
       let Bx = B0;
       let By = 0;
 
-      const main = dipoleField(x,y,cx,cy,radius);
+      // main Meissner exclusion (dipole approximation)
+      if(r > radius){
 
-      if(!main.inside){
+        const r5 = Math.pow(r,5);
+        const mx = -B0*Math.pow(radius,3);
 
-        Bx += main.Bx;
-        By += main.By;
+        Bx += (3*dx*dx*mx - r*r*mx)/r5;
+        By += (3*dx*dy*mx)/r5;
 
       }
 
-      // cursor Meissner region
-      const cursor = dipoleField(x,y,mouse.x,mouse.y,40);
+      // smooth cursor exclusion
+      const mdx = x - mouse.x;
+      const mdy = y - mouse.y;
 
-      if(!cursor.inside){
+      const md = Math.sqrt(mdx*mdx + mdy*mdy);
 
-        Bx += cursor.Bx*0.6;
-        By += cursor.By*0.6;
+      const cursorRadius = 50;
+
+      if(md < cursorRadius){
+
+        const strength = (cursorRadius - md)/cursorRadius;
+
+        // radial repulsion
+        Bx += mdx * strength * 0.08;
+        By += mdy * strength * 0.08;
 
       }
 
@@ -92,7 +86,7 @@ const MeissnerField = () => {
 
         const {Bx,By} = field(x,y);
 
-        const mag = Math.sqrt(Bx*Bx+By*By);
+        const mag = Math.sqrt(Bx*Bx + By*By);
 
         const step = 3;
 
@@ -124,7 +118,7 @@ const MeissnerField = () => {
 
       }
 
-      // main superconductor
+      // superconducting disk
       ctx.beginPath();
       ctx.arc(cx,cy,radius,0,Math.PI*2);
 
@@ -135,14 +129,6 @@ const MeissnerField = () => {
 
       ctx.fillStyle = grad;
       ctx.fill();
-
-      // cursor superconductor
-      ctx.beginPath();
-      ctx.arc(mouse.x,mouse.y,40,0,Math.PI*2);
-
-      ctx.strokeStyle="rgba(250,204,21,0.9)";
-      ctx.lineWidth=1.5;
-      ctx.stroke();
 
       requestAnimationFrame(draw);
 
