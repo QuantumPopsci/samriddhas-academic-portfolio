@@ -1575,6 +1575,10 @@ const navLinks = [ { id: 'home', title: 'Home' }, { id: 'research', title: 'Rese
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-sans transition-colors duration-300">
+      {/* ===== BACKGROUND BLOBS ===== */}
+    <div className="bg-blob blob-blue"></div>
+    <div className="bg-blob blob-purple"></div>
+    <div className="bg-blob blob-cyan"></div>
       <div className="relative z-10">
         <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-md">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
