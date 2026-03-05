@@ -20,60 +20,66 @@ const MeissnerBackground = () => {
       mouse.y = e.clientY;
     });
 
+    const cx = width / 2;
+    const cy = height / 2;
+    const radius = 150;
+
     const lines = [];
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 50; i++) {
       lines.push({
-        y: (i / 40) * height,
+        baseY: (i / 50) * height,
         phase: Math.random() * Math.PI * 2,
       });
     }
 
-    const draw = () => {
+    function draw() {
       ctx.clearRect(0, 0, width, height);
 
-      // superconducting disk
-      const cx = width / 2;
-      const cy = height / 2;
-      const r = 120;
-
-      ctx.fillStyle = "#0f172a";
+      // draw superconducting disk
       ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(15,23,42,0.9)";
       ctx.fill();
 
       lines.forEach((line) => {
         ctx.beginPath();
 
-        for (let x = 0; x < width; x += 10) {
-          const dx = x - cx;
-          const dy = line.y - cy;
+        for (let x = 0; x < width; x += 8) {
+          let y = line.baseY;
 
+          const dx = x - cx;
+          const dy = y - cy;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          let offset = 0;
+          // --- MEISSNER EXCLUSION ---
+          if (dist < radius + 120) {
+            const angle = Math.atan2(dy, dx);
+            const push = (radius + 120 - dist) * 0.8;
 
-          if (dist < 300) {
-            offset =
-              (150 / (dist + 1)) *
-              Math.sin(line.phase + x * 0.01);
+            y += Math.sin(angle) * push;
           }
 
-          const mouseDist = Math.sqrt(
-            (x - mouse.x) ** 2 + (line.y - mouse.y) ** 2
-          );
+          // --- CURSOR INTERACTION ---
+          const mx = x - mouse.x;
+          const my = y - mouse.y;
+          const md = Math.sqrt(mx * mx + my * my);
 
-          if (mouseDist < 200) {
-            offset += 10 * Math.sin(x * 0.05);
+          const cursorRadius = 60; // small cursor effect
+
+          if (md < cursorRadius) {
+            const influence = (cursorRadius - md) / cursorRadius;
+            y += my * influence * 0.5;
           }
 
-          const y = line.y + offset;
+          // smooth wave motion
+          y += Math.sin(x * 0.01 + line.phase) * 2;
 
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
 
-        ctx.strokeStyle = "rgba(14,165,233,0.35)";
+        ctx.strokeStyle = "rgba(34,211,238,0.45)";
         ctx.lineWidth = 2;
         ctx.stroke();
 
@@ -81,7 +87,7 @@ const MeissnerBackground = () => {
       });
 
       requestAnimationFrame(draw);
-    };
+    }
 
     draw();
 
@@ -91,14 +97,10 @@ const MeissnerBackground = () => {
       canvas.width = width;
       canvas.height = height;
     });
+
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 -z-10"
-    />
-  );
+  return <canvas ref={canvasRef} className="fixed inset-0 -z-10" />;
 };
 
 export default MeissnerBackground;
