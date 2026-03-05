@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
+import MajoranaNanowireSim from "./components/MajoranaNanowireSim";
 import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -1096,6 +1097,7 @@ const SimulationsPage = ({ isDarkMode }) => (
             This page features interactive simulations of interesting physical models. Please be patient during calculations.
         </p>
         <div className="space-y-8">
+          <MajoranaNanowireSim />
             <WavePacketSimFinal isDarkMode={isDarkMode} />
             <ChernInsulatorSim isDarkMode={isDarkMode} />
             <TopologicalMagnonSim isDarkMode={isDarkMode} />
