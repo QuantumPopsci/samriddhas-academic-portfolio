@@ -40,8 +40,8 @@ const MeissnerField = () => {
       let Bx = B0;
       let By = 0;
 
-      // main Meissner screening
-      if(r>radius){
+      // Meissner screening from central superconductor
+      if(r > radius){
 
         const r5 = Math.pow(r,5);
         const mx = -B0*Math.pow(radius,3);
@@ -51,54 +51,28 @@ const MeissnerField = () => {
 
       }
 
-      // cursor exclusion
+      // cursor Meissner exclusion
       const mxp = x-mouse.x;
       const myp = y-mouse.y;
-      const md = Math.sqrt(mxp*mxp+myp*myp);
+      const md = Math.sqrt(mxp*mxp + myp*myp);
 
-      const cursorR = 50;
+      const cursorR = 55;
 
-      if(md<cursorR){
+      if(md < cursorR){
 
         const angle = Math.atan2(myp,mxp);
 
         const tangentX = -Math.sin(angle);
         const tangentY = Math.cos(angle);
 
-        const strength = Math.exp(-(md*md)/(cursorR*cursorR));
+        const strength = (cursorR-md)/cursorR;
 
-        Bx += tangentX * strength * 2;
-        By += tangentY * strength * 2;
+        Bx += tangentX * strength * 1.5;
+        By += tangentY * strength * 1.5;
 
       }
 
       return {Bx,By};
-
-    }
-
-    function drawFluxDensity(){
-
-      const grid = 60;
-
-      for(let x=0;x<width;x+=grid){
-
-        for(let y=0;y<height;y+=grid){
-
-          const {Bx,By} = field(x,y);
-
-          const mag = Math.sqrt(Bx*Bx+By*By);
-
-          const alpha = Math.min(mag*0.15,0.25);
-
-          ctx.fillStyle=`rgba(56,189,248,${alpha})`;
-
-          ctx.beginPath();
-          ctx.arc(x,y,grid*0.6,0,Math.PI*2);
-          ctx.fill();
-
-        }
-
-      }
 
     }
 
@@ -110,7 +84,7 @@ const MeissnerField = () => {
       ctx.beginPath();
       ctx.moveTo(x,y);
 
-      for(let i=0;i<900;i++){
+      for(let i=0;i<800;i++){
 
         const {Bx,By} = field(x,y);
 
@@ -135,9 +109,7 @@ const MeissnerField = () => {
 
       ctx.clearRect(0,0,width,height);
 
-      drawFluxDensity();
-
-      ctx.strokeStyle="rgba(56,189,248,0.6)";
+      ctx.strokeStyle="rgba(56,189,248,0.65)";
       ctx.lineWidth=2;
 
       const spacing = 40;
@@ -148,7 +120,7 @@ const MeissnerField = () => {
 
       }
 
-      // superconducting disk
+      // central superconducting disk
       ctx.beginPath();
       ctx.arc(cx,cy,radius,0,Math.PI*2);
 
