@@ -26,7 +26,7 @@ const MeissnerField = () => {
 
     const mouse = {x:width/2,y:height/2};
 
-    window.addEventListener("mousemove",e=>{
+    window.addEventListener("mousemove",(e)=>{
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     });
@@ -35,12 +35,12 @@ const MeissnerField = () => {
 
       const dx = x-cx;
       const dy = y-cy;
-      const r = Math.sqrt(dx*dx+dy*dy);
+      const r = Math.sqrt(dx*dx + dy*dy);
 
       let Bx = B0;
       let By = 0;
 
-      // central Meissner disk
+      // central Meissner screening
       if(r > radius){
 
         const r5 = Math.pow(r,5);
@@ -51,12 +51,12 @@ const MeissnerField = () => {
 
       }
 
-      // cursor exclusion
+      // cursor Meissner exclusion
       const mxp = x - mouse.x;
       const myp = y - mouse.y;
       const md = Math.sqrt(mxp*mxp + myp*myp);
 
-      const cursorR = 55;
+      const cursorR = 60;
 
       if(md < cursorR){
 
@@ -68,16 +68,23 @@ const MeissnerField = () => {
         const tangentX = -Math.sin(angle);
         const tangentY = Math.cos(angle);
 
-        const strength = (cursorR-md)/cursorR;
+        const gaussian = Math.exp(-(md*md)/(cursorR*cursorR));
 
-        // suppress radial field
-        Bx -= radialX * strength * 2.0;
-        By -= radialY * strength * 2.0;
+        const strength = gaussian * 0.8;
 
-        // redirect tangentially
-        Bx += tangentX * strength * 1.5;
-        By += tangentY * strength * 1.5;
+        Bx -= radialX * strength;
+        By -= radialY * strength;
 
+        Bx += tangentX * strength * 0.6;
+        By += tangentY * strength * 0.6;
+
+      }
+
+      const mag = Math.sqrt(Bx*Bx + By*By);
+
+      if(mag < 0.1){
+        Bx = B0;
+        By = 0;
       }
 
       return {Bx,By};
@@ -96,14 +103,14 @@ const MeissnerField = () => {
 
         const {Bx,By} = field(x,y);
 
-        const mag = Math.sqrt(Bx*Bx+By*By);
+        const mag = Math.sqrt(Bx*Bx + By*By);
 
         const step = 3;
 
         x += (Bx/mag)*step;
         y += (By/mag)*step;
 
-        if(x<0||x>width||y<0||y>height) break;
+        if(x<0 || x>width || y<0 || y>height) break;
 
         ctx.lineTo(x,y);
 
@@ -123,7 +130,9 @@ const MeissnerField = () => {
       const spacing = 40;
 
       for(let y=spacing;y<height;y+=spacing){
+
         drawStreamline(0,y);
+
       }
 
       // central superconducting disk
@@ -158,7 +167,12 @@ const MeissnerField = () => {
 
   return (
     <>
-      {enabled && <canvas ref={canvasRef} className="fixed inset-0 -z-10"/>}
+      {enabled && (
+        <canvas
+          ref={canvasRef}
+          className="fixed inset-0 -z-10"
+        />
+      )}
 
       <button
         onClick={()=>setEnabled(!enabled)}
