@@ -1394,15 +1394,18 @@ const BookViewer = ({ article, onClose }) => {
 const ReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState(null);
 
-  if (selectedReport) {
-    return (
-      <PDFModalViewer
-        file={selectedReport.file}
-        title={selectedReport.title}
-        onClose={() => setSelectedReport(null)}
-      />
-    );
-  }
+if (selectedReport) {
+  return (
+    <BookViewer
+      article={{
+        title: selectedReport.title,
+        type: "pdf",
+        file: selectedReport.file
+      }}
+      onClose={() => setSelectedReport(null)}
+    />
+  );
+}
 
   return (
     <PageWrapper title="Reports & Presentations">
