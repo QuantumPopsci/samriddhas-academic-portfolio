@@ -15,16 +15,15 @@ html {
 body {
   @apply text-slate-800 dark:text-slate-200;
   font-feature-settings: "liga" 1, "calt" 1;
-  background: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%);
+  background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%);
   min-height: 100vh;
 }
 
 /* Dark mode gradient */
 
 .dark body {
-  background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
+  background: linear-gradient(135deg, #1e1b4b 0%, #020617 100%);
 }
-
 /* ===================================================== */
 /* ================= BACKGROUND BLOBS =================== */
 /* ===================================================== */
@@ -40,23 +39,22 @@ body {
 }
 
 .blob-blue {
-  background: #f59e0b;
+  background: #a78bfa;
   bottom: -200px;
   right: -200px;
 }
 
 .blob-purple {
-  background: #fbbf24;
+  background: #c4b5fd;
   top: -200px;
   left: -200px;
 }
 
 .blob-cyan {
-  background: #fde68a;
+  background: #ddd6fe;
   top: 40%;
   left: 60%;
 }
-
 /* ===================================================== */
 /* ================= SCROLLBAR ========================== */
 /* ===================================================== */
