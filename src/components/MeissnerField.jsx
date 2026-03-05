@@ -31,25 +31,58 @@ const MeissnerField = () => {
       mouse.y = e.clientY;
     });
 
-    function field(x,y){
+function field(x,y){
 
-      const dx = x-cx;
-      const dy = y-cy;
-      const r = Math.sqrt(dx*dx+dy*dy);
+  const dx = x-cx;
+  const dy = y-cy;
+  const r = Math.sqrt(dx*dx+dy*dy);
 
-      let Bx = B0;
-      let By = 0;
+  let Bx = B0;
+  let By = 0;
 
-      // Meissner screening from central superconductor
-      if(r > radius){
+  // central Meissner disk
+  if(r > radius){
 
-        const r5 = Math.pow(r,5);
-        const mx = -B0*Math.pow(radius,3);
+    const r5 = Math.pow(r,5);
+    const mx = -B0*Math.pow(radius,3);
 
-        Bx += (3*dx*dx*mx - r*r*mx)/r5;
-        By += (3*dx*dy*mx)/r5;
+    Bx += (3*dx*dx*mx - r*r*mx)/r5;
+    By += (3*dx*dy*mx)/r5;
 
-      }
+  }
+
+  // cursor exclusion
+  const mxp = x - mouse.x;
+  const myp = y - mouse.y;
+  const md = Math.sqrt(mxp*mxp + myp*myp);
+
+  const cursorR = 55;
+
+  if(md < cursorR){
+
+    const angle = Math.atan2(myp,mxp);
+
+    const radialX = Math.cos(angle);
+    const radialY = Math.sin(angle);
+
+    const tangentX = -Math.sin(angle);
+    const tangentY = Math.cos(angle);
+
+    const strength = (cursorR-md)/cursorR;
+
+    // suppress radial field
+    Bx -= radialX * strength * 2.0;
+    By -= radialY * strength * 2.0;
+
+    // redirect tangentially
+    Bx += tangentX * strength * 1.5;
+    By += tangentY * strength * 1.5;
+
+  }
+
+  return {Bx,By};
+
+}
 
       // cursor Meissner exclusion
       const mxp = x-mouse.x;
