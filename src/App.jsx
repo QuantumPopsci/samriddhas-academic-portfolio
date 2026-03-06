@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
 import MajoranaNanowireSim from "./components/MajoranaNanowireSim";
 import BlochSphereTile from "./components/BlochSphereTile";
+import DiracConeTile from "./components/DiracConeTile";
 import JosephsonJunctionTile from "./components/JosephsonJunctionTile";
 import QuantumTunnelingTile from "./components/QuantumTunnelingTile";
 import ChiralEdgeTile from "./components/ChiralEdgeTile";
@@ -1124,15 +1125,20 @@ const SimulationsPage = ({ isDarkMode }) => (
             <JosephsonJunctionTile />
             <TheoryTile 
                 title="Josephson Effect"
-                description="When two superconductors are separated by a thin insulating barrier, Cooper pairs can tunnel through. The phase difference φ across the junction determines the supercurrent. In the AC effect, a DC voltage leads to a high-frequency oscillating current."
+                physics="When two superconductors are separated by a thin insulating barrier, Cooper pairs can tunnel through. The phase difference φ across the junction determines the supercurrent. In the AC effect, a DC voltage leads to a high-frequency oscillating current."
                 formula="I = I_c \sin(\phi), \quad \frac{d\phi}{dt} = \frac{2eV}{\hbar}"
             />
-
+<DiracConeTile />
+            <TheoryTile 
+                title="Dirac Fermions & Band Gapping"
+                physics="In materials like graphene or the surface of topological insulators, low-energy excitations behave as massless Dirac fermions with a linear dispersion. Introducing a mass term (e.g., via inversion symmetry breaking) gaps the cone, creating a massive semiconductor phase."
+                formula="E(k) = \pm \sqrt{\hbar^2 v_f^2 (k_x^2 + k_y^2) + \Delta^2}"
+            />
             {/* Quantum Tunneling Section */}
             <QuantumTunnelingTile />
             <TheoryTile 
                 title="Quantum Tunneling"
-                description="A wave-like particle can penetrate a potential barrier that it classically could not surmount. The probability of transmission depends exponentially on the barrier's width and the square root of the energy deficit."
+                physics="A wave-like particle can penetrate a potential barrier that it classically could not surmount. The probability of transmission depends exponentially on the barrier's width and the square root of the energy deficit."
                 formula="T \approx e^{-2L\sqrt{2m(V_0 - E)}/\hbar}"
             />
         </div>
