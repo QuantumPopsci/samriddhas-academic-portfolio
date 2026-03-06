@@ -3,11 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 const MajoranaNanowireSim = () => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
+  const hudRef = useRef(null);
+  const controlsRef = useRef(null);
   
-  // Physics Parameters
-  const [mu, setMu] = useState(0.5); // Chemical Potential
-  const [delta, setDelta] = useState(0.8); // Superconducting Gap
-  const [noise, setNoise] = useState(0.05); // Thermal Noise
+  const [mu, setMu] = useState(0.5); 
+  const [delta, setDelta] = useState(0.8); 
+  const [noise, setNoise] = useState(0.05); 
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,7 +26,6 @@ const MajoranaNanowireSim = () => {
       const wireLength = w * 0.85;
       const startX = (w - wireLength) / 2;
 
-      // Physics Logic
       const isTopological = Math.abs(mu) < delta;
       const points = 150;
 
@@ -40,22 +40,12 @@ const MajoranaNanowireSim = () => {
         for (let i = 0; i <= points; i++) {
           const xRel = i / points;
           const xPos = startX + xRel * wireLength;
-          
-          let amplitude = 0;
-          if (isTopological) {
-            // Majorana Localized states (Exponential decay)
-            const xi = 6; 
-            const left = Math.exp(-xRel * xi) * Math.sin(time * 2.5);
-            const right = Math.exp(-(1 - xRel) * xi) * Math.sin(time * 2.5 + Math.PI);
-            amplitude = (left + right) * delta;
-          } else {
-            // Trivial Phase
-            amplitude = Math.sin(time * 1.5 + xRel * 12) * 0.08 * mu;
-          }
+          let amplitude = isTopological 
+            ? (Math.exp(-xRel * 6) * Math.sin(time * 2.5) + Math.exp(-(1 - xRel) * 6) * Math.sin(time * 2.5 + Math.PI)) * delta
+            : Math.sin(time * 1.5 + xRel * 12) * 0.08 * mu;
 
-          // Thermal Fluctuations
           const n = (Math.random() - 0.5) * noise * 8;
-          const yPos = centerY + (amplitude * (h * 0.2)) + n;
+          const yPos = centerY + (amplitude * (h * 0.22)) + n;
 
           if (i === 0) ctx.moveTo(xPos, yPos);
           else ctx.lineTo(xPos, yPos);
@@ -63,11 +53,9 @@ const MajoranaNanowireSim = () => {
         ctx.stroke();
       };
 
-      // Composite the neon glow
-      drawLayer('#00f2ff', 20, 0.3, 4);  // Outer Bloom
-      drawLayer('#ffffff', 0, 0.9, 2);   // Core path
+      drawLayer('#00f2ff', 20, 0.3, 4);
+      drawLayer('#ffffff', 0, 0.9, 2);
 
-      // Majorana Zero Mode Pulsars (Heads)
       if (isTopological) {
         const drawMZM = (x) => {
           const pulse = 6 + Math.abs(Math.sin(time * 2.5)) * 10;
@@ -75,30 +63,29 @@ const MajoranaNanowireSim = () => {
           g.addColorStop(0, '#fff');
           g.addColorStop(1, 'transparent');
           ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.arc(x, centerY, pulse, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.beginPath(); ctx.arc(x, centerY, pulse, 0, Math.PI * 2); ctx.fill();
         };
         drawMZM(startX);
         drawMZM(startX + wireLength);
       }
-
       animationFrameId = requestAnimationFrame(render);
     };
 
     const handleResize = () => {
       if (containerRef.current && canvasRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
+        // DYNAMIC SUBTRACTION: Calculates exact height remaining for canvas
+        const hudH = hudRef.current?.offsetHeight || 60;
+        const ctrlH = controlsRef.current?.offsetHeight || 100;
+        
         canvasRef.current.width = rect.width;
-        // Subtract height of HUD and Controls dynamically
-        canvasRef.current.height = Math.max(200, rect.height - 150); 
+        canvasRef.current.height = Math.max(180, rect.height - hudH - ctrlH);
       }
     };
 
     const observer = new ResizeObserver(handleResize);
     observer.observe(containerRef.current);
     handleResize();
-
     animationFrameId = requestAnimationFrame(render);
 
     return () => {
@@ -114,68 +101,59 @@ const MajoranaNanowireSim = () => {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '450px',
-        height: 'auto',
+        height: '450px',   // Fixed for desktop
+        maxHeight: '85vh', // Prevents stretching on mobile
         background: '#0a0a0a',
         position: 'relative',
         overflow: 'hidden',
         padding: '0'
       }}
     >
-      {/* HUD Title */}
-      <div style={{ padding: '20px 20px 0 20px', zIndex: 10 }}>
+      <div ref={hudRef} style={{ padding: '15px 20px 0 20px', zIndex: 10 }}>
         <div style={{ color: '#00f2ff', fontFamily: 'monospace', fontSize: '10px', letterSpacing: '2px' }}>
-          TOPOLOGICAL NANOWIRE SIMULATION
+          TOPOLOGICAL NANOWIRE
         </div>
         <div style={{ 
           color: Math.abs(mu) < delta ? '#00f2ff' : '#444',
-          fontSize: '18px', 
+          fontSize: '1.1rem', 
           fontWeight: 'bold',
-          fontFamily: 'monospace',
           textShadow: Math.abs(mu) < delta ? '0 0 10px #00f2ff' : 'none'
         }}>
-          {Math.abs(mu) < delta ? "PHASE: TOPOLOGICAL (MZM)" : "PHASE: TRIVIAL (GAPPED)"}
+          {Math.abs(mu) < delta ? "PHASE: TOPOLOGICAL" : "PHASE: TRIVIAL"}
         </div>
       </div>
 
-      {/* Flexible Canvas Area */}
       <canvas ref={canvasRef} style={{ flex: 1, width: '100%', cursor: 'crosshair' }} />
 
-      {/* Responsive Control Panel */}
-      <div style={{
-        padding: '15px 20px',
+      <div ref={controlsRef} style={{
+        padding: '12px 20px',
         background: 'rgba(255,255,255,0.03)',
         backdropFilter: 'blur(12px)',
         borderTop: '1px solid rgba(255,255,255,0.05)',
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '20px',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        gap: '12px 20px',
+        justifyContent: 'center',
         zIndex: 10
       }}>
         <div style={labelContainer}>
           <label style={labelStyle}>POTENTIAL (μ)</label>
-          <input type="range" min="-2" max="2" step="0.1" value={mu} 
-            onChange={(e) => setMu(parseFloat(e.target.value))} style={sliderStyle} />
+          <input type="range" min="-2" max="2" step="0.1" value={mu} onChange={(e) => setMu(parseFloat(e.target.value))} style={sliderStyle} />
         </div>
         <div style={labelContainer}>
           <label style={labelStyle}>GAP (Δ)</label>
-          <input type="range" min="0" max="2" step="0.1" value={delta} 
-            onChange={(e) => setDelta(parseFloat(e.target.value))} style={sliderStyle} />
+          <input type="range" min="0" max="2" step="0.1" value={delta} onChange={(e) => setDelta(parseFloat(e.target.value))} style={sliderStyle} />
         </div>
         <div style={labelContainer}>
           <label style={labelStyle}>THERMAL NOISE</label>
-          <input type="range" min="0" max="0.3" step="0.01" value={noise} 
-            onChange={(e) => setNoise(parseFloat(e.target.value))} style={sliderStyle} />
+          <input type="range" min="0" max="0.3" step="0.01" value={noise} onChange={(e) => setNoise(parseFloat(e.target.value))} style={sliderStyle} />
         </div>
       </div>
     </div>
   );
 };
 
-// Styles
-const labelContainer = { display: 'flex', flexDirection: 'column', gap: '4px', flex: '1 1 100px' };
+const labelContainer = { display: 'flex', flexDirection: 'column', gap: '2px', flex: '1 1 100px', maxWidth: '150px' };
 const labelStyle = { color: '#888', fontSize: '9px', fontFamily: 'monospace' };
 const sliderStyle = { width: '100%', cursor: 'pointer', accentColor: '#00f2ff' };
 
