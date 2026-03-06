@@ -1103,7 +1103,7 @@ const SimulationsPage = ({ isDarkMode }) => (
           <MajoranaNanowireSim isDarkMode={isDarkMode} />
           <TheoryTile 
                 title="Majorana Zero Modes in 1D Superconductor"
-                description="In a topological superconductor, Majorana fermions appear as zero-energy excitations localized at the ends. The topological phase transition occurs when the chemical potential μ lies within the superconducting gap Δ."
+                physics="In a topological superconductor, Majorana fermions appear as zero-energy excitations localized at the ends. The topological phase transition occurs when the chemical potential μ lies within the superconducting gap Δ."
                 formula="E = ±√( (ε - μ)² + Δ² )"
             />
           <ChiralEdgeTile isDarkMode={isDarkMode}/>
