@@ -75,42 +75,52 @@ try {
 
   return psi
 }
-
-function Chain({psi}){
+function Chain({psi}) {
 
   const spacing = 0.8
+
+  const curvePoints = []
+  const areaPoints = []
+
+  psi.forEach((amp,i)=>{
+
+    const x = (i - N/2)*spacing
+    const y = amp*1.6
+
+    curvePoints.push(new THREE.Vector3(x,y,0))
+
+    areaPoints.push(new THREE.Vector3(x,0,0))
+    areaPoints.push(new THREE.Vector3(x,y,0))
+
+  })
+
+  const curveGeom =
+    new THREE.BufferGeometry().setFromPoints(curvePoints)
+
+  const areaGeom =
+    new THREE.BufferGeometry().setFromPoints(areaPoints)
 
   return(
 
     <group>
 
+      {/* lattice sites */}
       {psi.map((amp,i)=>{
 
         const x = (i - N/2)*spacing
 
         return(
 
-          <group key={i} position={[x,0,0]}>
-
-            <mesh>
-              <sphereGeometry args={[0.08,32,32]}/>
-              <meshStandardMaterial color="#22d3ee"/>
-            </mesh>
-
-            <mesh position={[0,amp*1.5,0]}>
-              <sphereGeometry args={[0.15,32,32]}/>
-              <meshStandardMaterial
-                color="#a855f7"
-                emissive="#a855f7"
-                emissiveIntensity={4}
-              />
-            </mesh>
-
-          </group>
+          <mesh key={i} position={[x,0,0]}>
+            <sphereGeometry args={[0.08,32,32]} />
+            <meshStandardMaterial color="#22d3ee" />
+          </mesh>
 
         )
+
       })}
 
+      {/* bonds */}
       {Array.from({length:N-1}).map((_,i)=>{
 
         const x1 = (i - N/2)*spacing
@@ -123,15 +133,33 @@ function Chain({psi}){
 
         return(
           <line key={i} geometry={geo}>
-            <lineBasicMaterial color="#334155"/>
+            <lineBasicMaterial color="#334155" />
           </line>
         )
       })}
 
-    </group>
-  )
-}
+      {/* wavefunction curve */}
+      <line geometry={curveGeom}>
+        <lineBasicMaterial
+          color="#a855f7"
+          linewidth={4}
+        />
+      </line>
 
+      {/* shaded density */}
+      <lineSegments geometry={areaGeom}>
+        <lineBasicMaterial
+          color="#c084fc"
+          transparent
+          opacity={0.35}
+        />
+      </lineSegments>
+
+    </group>
+
+  )
+
+}
 export default function MajoranaNanowireSim(){
 
   const [mu,setMu] = useState(0)
