@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
 import MajoranaNanowireSim from "./components/MajoranaNanowireSim";
 import BlochSphereTile from "./components/BlochSphereTile";
+import JosephsonJunctionTile from "./components/JosephsonJunctionTile";
+import QuantumTunnelingTile from "./components/QuantumTunnelingTile";
 import ChiralEdgeTile from "./components/ChiralEdgeTile";
 import TheoryTile from "./components/TheoryTile";
 import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
@@ -1117,6 +1119,21 @@ const SimulationsPage = ({ isDarkMode }) => (
                 title="The Bloch Sphere"
                 physics="A geometric representation of the pure state space of a two-level quantum system. The north and south poles represent the basis states |0⟩ and |1⟩. Any point on the surface represents a coherent superposition determined by the polar angle θ and phase φ."
                 formula="|ψ⟩ = cos(θ/2)|0⟩ + e^{iφ}sin(θ/2)|1⟩"
+            />
+          {/* Josephson Junction Section */}
+            <JosephsonJunctionTile />
+            <TheoryTile 
+                title="Josephson Effect"
+                description="When two superconductors are separated by a thin insulating barrier, Cooper pairs can tunnel through. The phase difference φ across the junction determines the supercurrent. In the AC effect, a DC voltage leads to a high-frequency oscillating current."
+                formula="I = I_c \sin(\phi), \quad \frac{d\phi}{dt} = \frac{2eV}{\hbar}"
+            />
+
+            {/* Quantum Tunneling Section */}
+            <QuantumTunnelingTile />
+            <TheoryTile 
+                title="Quantum Tunneling"
+                description="A wave-like particle can penetrate a potential barrier that it classically could not surmount. The probability of transmission depends exponentially on the barrier's width and the square root of the energy deficit."
+                formula="T \approx e^{-2L\sqrt{2m(V_0 - E)}/\hbar}"
             />
         </div>
     </PageWrapper>
