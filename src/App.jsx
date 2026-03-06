@@ -1102,9 +1102,9 @@ const SimulationsPage = ({ isDarkMode }) => (
         <div className="space-y-8">
           <MajoranaNanowireSim isDarkMode={isDarkMode} />
           <TheoryTile 
-                title="Majorana Zero Modes"
-                physics="Majorana fermions are particles that are their own anti-particles. In a 1D p-wave superconductor, these emerge as zero-energy modes localized at the boundaries. When the chemical potential μ is within the superconducting gap, the system enters a non-trivial topological phase."
-                formula="γ₁ = c + c†, γ₂ = i(c† - c)"
+                title="Majorana Zero Modes in 1D Superconductor"
+                description="In a topological superconductor, Majorana fermions appear as zero-energy excitations localized at the ends. The topological phase transition occurs when the chemical potential μ lies within the superconducting gap Δ."
+                formula="E = ±√( (ε - μ)² + Δ² )"
             />
           <ChiralEdgeTile isDarkMode={isDarkMode}/>
           <TheoryTile 
