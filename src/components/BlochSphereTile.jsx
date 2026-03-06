@@ -4,171 +4,150 @@ const BlochSphereTile = () => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   
-  // Quantum State: Spherical Coordinates
-  const [theta, setTheta] = useState(Math.PI / 4); // Elevation
-  const [phi, setPhi] = useState(Math.PI / 4);   // Azimuth
+  // React state for sliders
+  const [theta, setTheta] = useState(Math.PI / 4);
+  const [phi, setPhi] = useState(Math.PI / 4);
   const [isPrecessing, setIsPrecessing] = useState(false);
+  
+  // Refs for smooth animation (avoids React re-render lag)
+  const phiRef = useRef(Math.PI / 4);
+  const requestRef = useRef();
+
+  // Sync state to ref so animation loop can see it
+  useEffect(() => {
+    phiRef.current = phi;
+  }, [phi]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
     const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    const resize = () => {
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
-    };
-
-    const observer = new ResizeObserver(resize);
-    observer.observe(container);
-    resize();
-
-    const draw = () => {
+    
+    const render = () => {
+      // 1. Update Physics (Precession)
       if (isPrecessing) {
-        setPhi(prev => (prev + 0.02) % (Math.PI * 2));
+        phiRef.current += 0.02;
       }
 
+      // 2. Clear Canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
-      const radius = Math.min(canvas.width, canvas.height) * 0.35;
+      const radius = Math.min(canvas.width, canvas.height) * 0.3;
 
-      // 3D Projection Logic
-      const project = (x, y, z) => {
-        const perspective = 0.8;
-        const scale = perspective / (perspective + (z / radius));
+      // Projection Helpers
+      const project = (t, p) => {
+        // Spherical to Cartesian
+        const x = radius * Math.sin(t) * Math.cos(p);
+        const y = radius * Math.cos(t); 
+        const z = radius * Math.sin(t) * Math.sin(p);
+        
+        // Simple 3D projection to 2D
         return {
           x: centerX + x,
-          y: centerY - y // Canvas Y is inverted
+          y: centerY - y, // Invert Y for screen space
+          z: z
         };
       };
 
-      // 1. Draw Axis Lines (Subtle Neon)
-      ctx.setLineDash([5, 5]);
-      ctx.strokeStyle = 'rgba(0, 242, 255, 0.2)';
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY - radius - 20); ctx.lineTo(centerX, centerY + radius + 20); // Z
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // 2. Draw Sphere Wireframe
-      ctx.strokeStyle = 'rgba(0, 242, 255, 0.1)';
+      // --- DRAW BACKGROUND SPHERE ---
       ctx.lineWidth = 1;
       
-      // Longitudinal Circle
+      // Vertical Ellipse (Longitudinal)
       ctx.beginPath();
+      ctx.strokeStyle = 'rgba(0, 242, 255, 0.1)';
       ctx.ellipse(centerX, centerY, radius, radius, 0, 0, Math.PI * 2);
       ctx.stroke();
-      
-      // Equator
+
+      // Equator (Latitudinal)
       ctx.beginPath();
+      ctx.strokeStyle = 'rgba(0, 242, 255, 0.2)';
       ctx.ellipse(centerX, centerY, radius, radius * 0.3, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // 3. The State Vector (The Neon Vector)
-      // Conversion: Spherical -> Cartesian
-      const x = radius * Math.sin(theta) * Math.cos(phi);
-      const y = radius * Math.cos(theta); // Mapping Z-phys to Y-canvas
-      const z = radius * Math.sin(theta) * Math.sin(phi);
+      // Z-Axis
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY - radius - 20);
+      ctx.lineTo(centerX, centerY + radius + 20);
+      ctx.stroke();
+      ctx.setLineDash([]);
 
-      const target = project(x, y, z);
+      // --- DRAW STATE VECTOR ---
+      const pos = project(theta, phiRef.current);
 
-      // Draw Vector Glow
+      // Neon Glow Line
+      ctx.beginPath();
       ctx.shadowBlur = 15;
       ctx.shadowColor = '#00f2ff';
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
-
-      ctx.beginPath();
       ctx.moveTo(centerX, centerY);
-      ctx.lineTo(target.x, target.y);
+      ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
-
-      // Vector Head (Pulsing tip)
-      const pulse = 4 + Math.sin(Date.now() / 200) * 2;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(target.x, target.y, pulse, 0, Math.PI * 2);
-      ctx.fill();
       
-      // Reset shadows
+      // Vector Head
+      ctx.beginPath();
+      ctx.fillStyle = '#fff';
+      ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Reset for next frame
       ctx.shadowBlur = 0;
 
-      // 4. Labels
-      ctx.fillStyle = 'rgba(0, 242, 255, 0.6)';
-      ctx.font = '10px monospace';
-      ctx.fillText('|0⟩', centerX - 8, centerY - radius - 15);
-      ctx.fillText('|1⟩', centerX - 8, centerY + radius + 25);
+      // Labels
+      ctx.fillStyle = '#00f2ff';
+      ctx.font = '12px monospace';
+      ctx.fillText('|0⟩', centerX - 10, centerY - radius - 25);
+      ctx.fillText('|1⟩', centerX - 10, centerY + radius + 40);
 
-      animationFrameId = requestAnimationFrame(draw);
+      requestRef.current = requestAnimationFrame(render);
     };
 
-    draw();
+    const handleResize = () => {
+      if (containerRef.current) {
+        canvas.width = containerRef.current.clientWidth;
+        canvas.height = containerRef.current.clientHeight;
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    requestRef.current = requestAnimationFrame(render);
+
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(requestRef.current);
     };
-  }, [theta, phi, isPrecessing]);
+  }, [theta, isPrecessing]); // Only restart if theta or precession status changes
 
   return (
-    <div ref={containerRef} style={tileStyle}>
-      <div style={headerStyle}>NV Center Spin State // Bloch Sphere</div>
+    <div ref={containerRef} className="simulation-card" style={{ height: '400px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'absolute', top: '15px', left: '20px', color: '#00f2ff', fontFamily: 'monospace', fontSize: '10px', zIndex: 10 }}>
+        NV CENTER // BLOCH SPHERE INTERACTIVE
+      </div>
       
       <canvas ref={canvasRef} style={{ flex: 1 }} />
 
-      <div style={controlPanelStyle}>
-        <div style={controlGroup}>
-          <label style={labelStyle}>THETA (θ)</label>
-          <input type="range" min="0" max={Math.PI} step="0.01" value={theta} 
-            onChange={(e) => setTheta(parseFloat(e.target.value))} style={sliderStyle} />
+      <div style={{ padding: '15px', background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(5px)', display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ color: '#888', fontSize: '10px' }}>THETA (θ)</label>
+          <input type="range" min="0" max={Math.PI} step="0.01" value={theta} onChange={(e) => setTheta(parseFloat(e.target.value))} />
         </div>
-        <div style={controlGroup}>
-          <label style={labelStyle}>PHI (φ)</label>
-          <input type="range" min="0" max={Math.PI * 2} step="0.01" value={phi} 
-            onChange={(e) => setPhi(parseFloat(e.target.value))} style={sliderStyle} />
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label style={{ color: '#888', fontSize: '10px' }}>PHI (φ)</label>
+          <input type="range" min="0" max={Math.PI * 2} step="0.01" value={phi} onChange={(e) => setPhi(parseFloat(e.target.value))} />
         </div>
         <button 
           onClick={() => setIsPrecessing(!isPrecessing)}
-          style={{
-            ...buttonStyle,
-            borderColor: isPrecessing ? '#00f2ff' : '#444',
-            color: isPrecessing ? '#fff' : '#888'
-          }}
+          style={{ padding: '5px 15px', background: isPrecessing ? '#00f2ff' : 'transparent', color: isPrecessing ? '#000' : '#00f2ff', border: '1px solid #00f2ff', cursor: 'pointer', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}
         >
-          {isPrecessing ? "STOP PRECESSION" : "START PRECESSION"}
+          {isPrecessing ? 'STOP PRECESSION' : 'START PRECESSION'}
         </button>
       </div>
     </div>
   );
-};
-
-// Styles to ensure it fits the "Shivkar" Tile layout
-const tileStyle = {
-  position: 'relative', width: '100%', height: '450px',
-  background: '#070707', borderRadius: '12px', border: '1px solid #1a1a1a',
-  overflow: 'hidden', display: 'flex', flexDirection: 'column'
-};
-
-const headerStyle = {
-  position: 'absolute', top: '15px', left: '20px', color: '#00f2ff',
-  fontFamily: 'monospace', fontSize: '10px', letterSpacing: '2px', opacity: 0.7
-};
-
-const controlPanelStyle = {
-  padding: '15px', background: 'rgba(255,255,255,0.02)',
-  backdropFilter: 'blur(10px)', borderTop: '1px solid rgba(255,255,255,0.05)',
-  display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px'
-};
-
-const controlGroup = { display: 'flex', flexDirection: 'column', gap: '4px' };
-const labelStyle = { color: '#555', fontSize: '9px', fontFamily: 'monospace' };
-const sliderStyle = { width: '100px', accentColor: '#00f2ff', cursor: 'pointer' };
-const buttonStyle = {
-  background: 'transparent', border: '1px solid', padding: '6px 12px',
-  fontSize: '9px', fontFamily: 'monospace', cursor: 'pointer', transition: '0.3s'
 };
 
 export default BlochSphereTile;
