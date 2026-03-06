@@ -6,7 +6,7 @@ import * as THREE from "three"
 import Plot from "react-plotly.js"
 import numeric from "numeric"
 
-const N = 10
+const N = 6
 const t = 1
 
 function buildHamiltonian(mu, delta){
@@ -40,9 +40,20 @@ function buildHamiltonian(mu, delta){
 
 function computeMajorana(mu, delta){
 
-  const H = buildHamiltonian(mu,delta)
+ const Hraw = buildHamiltonian(mu, delta)
 
-  const eig = numeric.eig(H)
+// force exact symmetry to stabilize numeric.eig
+const H = Hraw.map((row,i) =>
+  row.map((v,j) => 0.5*(v + Hraw[j][i]))
+)
+
+let eig
+try {
+  eig = numeric.eig(H)
+} catch(e) {
+  console.error("Eigen solve failed:", e)
+  return Array(N).fill(0)
+}
 
   const values = eig.lambda.x
   const vecs = eig.E.x
