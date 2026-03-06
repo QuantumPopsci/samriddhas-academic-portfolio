@@ -3,6 +3,7 @@ import Plot from 'react-plotly.js';
 import MajoranaNanowireSim from "./components/MajoranaNanowireSim";
 import BlochSphereTile from "./components/BlochSphereTile";
 import ChiralEdgeTile from "./components/ChiralEdgeTile";
+import TheoryTile from "./components/TheoryTile";
 import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -1100,8 +1101,23 @@ const SimulationsPage = ({ isDarkMode }) => (
         </p>
         <div className="space-y-8">
           <MajoranaNanowireSim />
+          <TheoryTile 
+                title="Majorana Zero Modes"
+                physics="Majorana fermions are particles that are their own anti-particles. In a 1D p-wave superconductor, these emerge as zero-energy modes localized at the boundaries. When the chemical potential μ is within the superconducting gap, the system enters a non-trivial topological phase."
+                formula="γ₁ = c + c†, γ₂ = i(c† - c)"
+            />
           <ChiralEdgeTile />
+          <TheoryTile 
+                title="Bulk-Boundary Correspondence"
+                physics="In topological insulators, the insulating bulk is characterized by a non-zero Chern number. This topology forces the existence of gapless, conducting states at the physical edges. These modes are 'chiral,' meaning they only flow in one direction and are protected against backscattering from impurities."
+                formula="N_{edge} = |C_{bulk}|"
+            />
           <BlochSphereTile />
+          <TheoryTile 
+                title="The Bloch Sphere"
+                physics="A geometric representation of the pure state space of a two-level quantum system. The north and south poles represent the basis states |0⟩ and |1⟩. Any point on the surface represents a coherent superposition determined by the polar angle θ and phase φ."
+                formula="|ψ⟩ = cos(θ/2)|0⟩ + e^{iφ}sin(θ/2)|1⟩"
+            />
             <WavePacketSimFinal isDarkMode={isDarkMode} />
             <ChernInsulatorSim isDarkMode={isDarkMode} />
             <TopologicalMagnonSim isDarkMode={isDarkMode} />
