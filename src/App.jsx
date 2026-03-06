@@ -1100,31 +1100,24 @@ const SimulationsPage = ({ isDarkMode }) => (
             This page features interactive simulations of interesting physical models. Please be patient during calculations.
         </p>
         <div className="space-y-8">
-          <MajoranaNanowireSim />
+          <MajoranaNanowireSim isDarkMode={isDarkMode} />
           <TheoryTile 
                 title="Majorana Zero Modes"
                 physics="Majorana fermions are particles that are their own anti-particles. In a 1D p-wave superconductor, these emerge as zero-energy modes localized at the boundaries. When the chemical potential μ is within the superconducting gap, the system enters a non-trivial topological phase."
                 formula="γ₁ = c + c†, γ₂ = i(c† - c)"
             />
-          <ChiralEdgeTile />
+          <ChiralEdgeTile isDarkMode={isDarkMode}/>
           <TheoryTile 
                 title="Bulk-Boundary Correspondence"
                 physics="In topological insulators, the insulating bulk is characterized by a non-zero Chern number. This topology forces the existence of gapless, conducting states at the physical edges. These modes are 'chiral,' meaning they only flow in one direction and are protected against backscattering from impurities."
                 formula="N_{edge} = |C_{bulk}|"
             />
-          <BlochSphereTile />
+          <BlochSphereTile isDarkMode={isDarkMode}/>
           <TheoryTile 
                 title="The Bloch Sphere"
                 physics="A geometric representation of the pure state space of a two-level quantum system. The north and south poles represent the basis states |0⟩ and |1⟩. Any point on the surface represents a coherent superposition determined by the polar angle θ and phase φ."
                 formula="|ψ⟩ = cos(θ/2)|0⟩ + e^{iφ}sin(θ/2)|1⟩"
             />
-            <WavePacketSimFinal isDarkMode={isDarkMode} />
-            <ChernInsulatorSim isDarkMode={isDarkMode} />
-            <TopologicalMagnonSim isDarkMode={isDarkMode} />
-            <SpinWaveSim isDarkMode={isDarkMode} />
-            <SSHModelSim isDarkMode={isDarkMode} />
-            <MonteCarloPiSim isDarkMode={isDarkMode} />
-            <HofstadterButterflySim isDarkMode={isDarkMode} />
         </div>
     </PageWrapper>
 );
