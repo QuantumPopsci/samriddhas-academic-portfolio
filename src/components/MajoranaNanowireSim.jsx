@@ -80,7 +80,7 @@ function Chain({psi}) {
   const spacing = 0.8
 
   const curvePoints = []
-  const areaPoints = []
+  const vertices = []
 
   psi.forEach((amp,i)=>{
 
@@ -89,16 +89,32 @@ function Chain({psi}) {
 
     curvePoints.push(new THREE.Vector3(x,y,0))
 
-    areaPoints.push(new THREE.Vector3(x,0,0))
-    areaPoints.push(new THREE.Vector3(x,y,0))
+    if(i < psi.length-1){
+
+      const x2 = (i+1 - N/2)*spacing
+      const y2 = psi[i+1]*1.6
+
+      vertices.push(
+        x,0,0,
+        x,y,0,
+        x2,0,0,
+
+        x2,0,0,
+        x,y,0,
+        x2,y2,0
+      )
+    }
 
   })
 
+  const areaGeom = new THREE.BufferGeometry()
+  areaGeom.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(vertices,3)
+  )
+
   const curveGeom =
     new THREE.BufferGeometry().setFromPoints(curvePoints)
-
-  const areaGeom =
-    new THREE.BufferGeometry().setFromPoints(areaPoints)
 
   return(
 
@@ -113,7 +129,11 @@ function Chain({psi}) {
 
           <mesh key={i} position={[x,0,0]}>
             <sphereGeometry args={[0.08,32,32]} />
-            <meshStandardMaterial color="#22d3ee" />
+            <meshStandardMaterial
+              color="#22d3ee"
+              emissive="#22d3ee"
+              emissiveIntensity={0.4}
+            />
           </mesh>
 
         )
@@ -138,6 +158,18 @@ function Chain({psi}) {
         )
       })}
 
+      {/* probability density shading */}
+      <mesh geometry={areaGeom}>
+        <meshStandardMaterial
+          color="#c084fc"
+          emissive="#a855f7"
+          emissiveIntensity={1.5}
+          transparent
+          opacity={0.35}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
       {/* wavefunction curve */}
       <line geometry={curveGeom}>
         <lineBasicMaterial
@@ -145,15 +177,6 @@ function Chain({psi}) {
           linewidth={4}
         />
       </line>
-
-      {/* shaded density */}
-      <lineSegments geometry={areaGeom}>
-        <lineBasicMaterial
-          color="#c084fc"
-          transparent
-          opacity={0.35}
-        />
-      </lineSegments>
 
     </group>
 
