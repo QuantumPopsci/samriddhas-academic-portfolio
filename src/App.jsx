@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
 import MajoranaNanowireSim from "./components/MajoranaNanowireSim";
+import BlochSphereTile from "./components/BlochSphereTile";
 import ChiralEdgeTile from "./components/ChiralEdgeTile";
 import { Mail, Phone, Github, Linkedin, Sun, Moon, Menu, X, Code, BrainCircuit, Atom, Waves, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
@@ -1100,6 +1101,7 @@ const SimulationsPage = ({ isDarkMode }) => (
         <div className="space-y-8">
           <MajoranaNanowireSim />
           <ChiralEdgeTile />
+          <BlochSphereTile />
             <WavePacketSimFinal isDarkMode={isDarkMode} />
             <ChernInsulatorSim isDarkMode={isDarkMode} />
             <TopologicalMagnonSim isDarkMode={isDarkMode} />
