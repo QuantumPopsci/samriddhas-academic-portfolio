@@ -1,180 +1,210 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 const MajoranaNanowireSim = () => {
+  const containerRef = useRef(null);
   const canvasRef = useRef(null);
-  const [isTopological, setIsTopological] = useState(true);
+  
+  // Physics Parameters
+  const [mu, setMu] = useState(0.5); // Chemical Potential
+  const [delta, setDelta] = useState(0.8); // SC Gap
+  const [noise, setNoise] = useState(0.1); // Thermal Noise
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
     let time = 0;
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
     };
 
-    window.addEventListener('resize', resize);
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
     resize();
 
     const draw = () => {
-      time += 0.015; // Animation speed
+      time += 0.02;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      const width = Math.min(canvas.width * 0.7, 800);
-      const height = canvas.height;
-      const centerY = height / 2;
-      const startX = (canvas.width - width) / 2;
-      
-      // --- 1. THE NANOWIRE "CORE" ---
-      // We draw a subtle, glowing background line for the wire itself
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(0, 242, 255, 0.15)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 15]); // Dotted look for the lattice
-      ctx.moveTo(startX, centerY);
-      ctx.lineTo(startX + width, centerY);
-      ctx.stroke();
-      ctx.setLineDash([]); // Reset dash
+      const w = canvas.width;
+      const h = canvas.height;
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const wireLength = w * 0.8;
+      const startX = (w - wireLength) / 2;
 
-      // --- 2. THE MAJORANA WAVEFUNCTIONS ---
-      const points = 250;
-      
-      // Layered Glow Effect (Drawing the line multiple times)
-      const drawWave = (color, blur, opacity, thickness) => {
+      // 1. Draw Nanowire Background (Subtle Neon)
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(0, 242, 255, 0.05)';
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      ctx.moveTo(startX, centerY);
+      ctx.lineTo(startX + wireLength, centerY);
+      ctx.stroke();
+
+      // 2. Physics Logic: Topological Condition
+      // Simple criteria: if |mu| < delta, we are in topological phase
+      const isTopological = Math.abs(mu) < delta;
+      const points = 150;
+
+      const drawLayer = (color, blur, opacity, weight) => {
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.globalAlpha = opacity;
         ctx.shadowBlur = blur;
         ctx.shadowColor = color;
-        ctx.lineWidth = thickness;
+        ctx.lineWidth = weight;
 
         for (let i = 0; i <= points; i++) {
-          const x = startX + (i / points) * width;
-          const relativeX = i / points;
+          const xRel = i / points;
+          const xPos = startX + xRel * wireLength;
           
           let amplitude = 0;
           if (isTopological) {
-            // Physics: Two Majorana modes at the ends
-            // Exponential decay: e^(-x/L)
-            const decay = 7.5; 
-            const leftMode = Math.exp(-relativeX * decay);
-            const rightMode = Math.exp(-(1 - relativeX) * decay);
-            
-            // Oscillate with a slight phase shift for a "breathing" effect
-            const wave = Math.sin(time * 3 + i * 0.15);
-            amplitude = (leftMode + rightMode) * wave;
+            // Majorana Localized states (Exponential decay)
+            const xi = 6; // Localization length
+            const left = Math.exp(-xRel * xi) * Math.sin(time * 2);
+            const right = Math.exp(-(1 - xRel) * xi) * Math.sin(time * 2 + Math.PI);
+            amplitude = (left + right) * delta;
           } else {
-            // Bulk state: Spread across the wire but low amplitude
-            amplitude = Math.sin(time * 2 + i * 0.05) * 0.1;
+            // Trivial Phase: Smeared bulk states
+            amplitude = Math.sin(time + xRel * 10) * 0.05 * mu;
           }
 
-          const y = centerY + amplitude * 80;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+          // Add Thermal Noise
+          const n = (Math.random() - 0.5) * noise * 5;
+          const yPos = centerY + (amplitude * 50) + n;
+
+          if (i === 0) ctx.moveTo(xPos, yPos);
+          else ctx.lineTo(xPos, yPos);
         }
         ctx.stroke();
       };
 
-      // Apply the layers (Inner core -> Mid glow -> Outer bloom)
-      drawWave('#ffffff', 0, 0.8, 1.5);    // Bright center
-      drawWave('#00f2ff', 10, 0.5, 3);    // Cyan glow
-      drawWave('#00f2ff', 30, 0.2, 8);    // Outer bloom
+      // Composite the neon glow
+      drawLayer('#00f2ff', 20, 0.3, 4);  // Outer Bloom
+      drawLayer('#ffffff', 0, 0.9, 1.5); // Core path
 
-      // --- 3. MAJORANA "ZERO MODE" HEADS ---
+      // 3. Majorana Zero Mode Pulsars
       if (isTopological) {
-        drawMZMHead(ctx, startX, centerY, time);
-        drawMZMHead(ctx, startX + width, centerY, time + Math.PI);
+        const drawMZM = (x) => {
+          const pulse = Math.abs(Math.sin(time * 2)) * 10 + 5;
+          const g = ctx.createRadialGradient(x, centerY, 0, x, centerY, pulse);
+          g.addColorStop(0, '#fff');
+          g.addColorStop(1, 'transparent');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(x, centerY, pulse, 0, Math.PI * 2);
+          ctx.fill();
+        };
+        drawMZM(startX);
+        drawMZM(startX + wireLength);
       }
 
-      ctx.globalAlpha = 1.0;
-      ctx.shadowBlur = 0;
       animationFrameId = requestAnimationFrame(draw);
     };
 
-    const drawMZMHead = (ctx, x, y, t) => {
-      const pulse = 8 + Math.sin(t * 4) * 4;
-      
-      // Create a radial gradient for a "soft star" look
-      const grad = ctx.createRadialGradient(x, y, 0, x, y, pulse * 3);
-      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-      grad.addColorStop(0.2, 'rgba(0, 242, 255, 0.8)');
-      grad.addColorStop(1, 'rgba(0, 242, 255, 0)');
-      
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(x, y, pulse * 3, 0, Math.PI * 2);
-      ctx.fill();
-    };
-
     draw();
-
     return () => {
       cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', resize);
+      observer.disconnect();
     };
-  }, [isTopological]);
+  }, [mu, delta, noise]);
 
   return (
-    <div style={{
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: '#050505',
-      margin: 0,
-      padding: 0,
-      overflow: 'hidden',
-      position: 'relative',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
-      <canvas 
-        ref={canvasRef} 
-        style={{ position: 'absolute', top: 0, left: 0 }}
-      />
-      
-      {/* HUD UI Elements */}
+    <div 
+      ref={containerRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '400px', // Adjust this to fit your grid/tile
+        background: '#0a0a0a',
+        borderRadius: '12px',
+        border: '1px solid #222',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {/* Simulation Title */}
       <div style={{
-        zIndex: 10,
-        textAlign: 'center',
-        pointerEvents: 'none',
+        position: 'absolute',
+        top: '15px',
+        left: '20px',
+        color: '#00f2ff',
         fontFamily: 'monospace',
-        color: '#00f2ff'
+        fontSize: '11px',
+        letterSpacing: '2px',
+        textTransform: 'uppercase',
+        pointerEvents: 'none'
       }}>
-        <h2 style={{ fontSize: '12px', letterSpacing: '4px', opacity: 0.6, textTransform: 'uppercase' }}>
-          Topological Superconductor Simulation
-        </h2>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', textShadow: '0 0 10px #00f2ff' }}>
-          {isTopological ? "MAJORANA ZERO MODES DETECTED" : "TRIVIAL PHASE"}
-        </h1>
+        Nanowire MZM Simulation
       </div>
 
-      <button 
-        onClick={() => setIsTopological(!isTopological)}
-        style={{
-          position: 'absolute',
-          bottom: '50px',
-          zIndex: 20,
-          background: 'transparent',
-          border: '1px solid #00f2ff',
-          color: '#00f2ff',
-          padding: '12px 24px',
-          cursor: 'pointer',
-          borderRadius: '2px',
-          fontFamily: 'monospace',
-          transition: 'all 0.3s ease',
-          backgroundColor: 'rgba(0, 242, 255, 0.05)'
-        }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 242, 255, 0.2)'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(0, 242, 255, 0.05)'}
-      >
-        TOGGLE PHASE
-      </button>
+      <canvas ref={canvasRef} style={{ flex: 1 }} />
+
+      {/* Control Panel (Glassmorphism) */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15px',
+        left: '15px',
+        right: '15px',
+        padding: '12px',
+        background: 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.05)',
+        borderRadius: '8px',
+        display: 'flex',
+        gap: '20px',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div style={labelStyle}>
+          MU (μ)
+          <input type="range" min="-2" max="2" step="0.1" value={mu} 
+            onChange={(e) => setMu(parseFloat(e.target.value))} style={sliderStyle} />
+        </div>
+        <div style={labelStyle}>
+          GAP (Δ)
+          <input type="range" min="0" max="2" step="0.1" value={delta} 
+            onChange={(e) => setDelta(parseFloat(e.target.value))} style={sliderStyle} />
+        </div>
+        <div style={labelStyle}>
+          NOISE
+          <input type="range" min="0" max="0.5" step="0.01" value={noise} 
+            onChange={(e) => setNoise(parseFloat(e.target.value))} style={sliderStyle} />
+        </div>
+        
+        <div style={{
+          color: Math.abs(mu) < delta ? '#00f2ff' : '#444',
+          fontSize: '9px',
+          fontWeight: 'bold',
+          transition: 'color 0.3s'
+        }}>
+          {Math.abs(mu) < delta ? "TOPOLOGICAL" : "TRIVIAL"}
+        </div>
+      </div>
     </div>
   );
+};
+
+// Internal styles for clean JSX
+const labelStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+  color: '#888',
+  fontSize: '9px',
+  fontFamily: 'monospace'
+};
+
+const sliderStyle = {
+  width: '80px',
+  cursor: 'pointer',
+  accentColor: '#00f2ff'
 };
 
 export default MajoranaNanowireSim;
