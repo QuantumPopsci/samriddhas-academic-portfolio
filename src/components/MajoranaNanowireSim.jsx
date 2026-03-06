@@ -114,50 +114,48 @@ const MajoranaNanowireSim = () => {
     };
   }, [mu, delta, noise]);
 
-  return (
+ return (
     <div 
       ref={containerRef}
       style={{
         position: 'relative',
         width: '100%',
-        height: '400px', // Adjust this to fit your grid/tile
+        minHeight: '450px', // Increased min-height for mobile safety
+        height: 'auto',     // Allow container to grow with content
         background: '#0a0a0a',
         borderRadius: '12px',
         border: '1px solid #222',
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        padding: '20px'     // Uniform padding for all internal elements
       }}
     >
-      {/* Simulation Title */}
+      {/* Simulation Title - Now part of the flow */}
       <div style={{
-        position: 'absolute',
-        top: '15px',
-        left: '20px',
         color: '#00f2ff',
         fontFamily: 'monospace',
         fontSize: '11px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
-        pointerEvents: 'none'
+        marginBottom: '10px'
       }}>
         Nanowire MZM Simulation
       </div>
 
-      <canvas ref={canvasRef} style={{ flex: 1 }} />
+      {/* Canvas - Flex 1 fills the remaining middle space */}
+      <canvas ref={canvasRef} style={{ flex: 1, width: '100%', minHeight: '200px' }} />
 
-      {/* Control Panel (Glassmorphism) */}
+      {/* Control Panel - Absolute removed, Flex-wrap added for mobile */}
       <div style={{
-        position: 'absolute',
-        bottom: '15px',
-        left: '15px',
-        right: '15px',
-        padding: '12px',
+        marginTop: '20px',
+        padding: '15px',
         background: 'rgba(255,255,255,0.03)',
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(255,255,255,0.05)',
         borderRadius: '8px',
         display: 'flex',
+        flexWrap: 'wrap', // This prevents clipping on mobile
         gap: '20px',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -180,9 +178,11 @@ const MajoranaNanowireSim = () => {
         
         <div style={{
           color: Math.abs(mu) < delta ? '#00f2ff' : '#444',
-          fontSize: '9px',
+          fontSize: '10px',
           fontWeight: 'bold',
-          transition: 'color 0.3s'
+          fontFamily: 'monospace',
+          minWidth: '80px',
+          textAlign: 'right'
         }}>
           {Math.abs(mu) < delta ? "TOPOLOGICAL" : "TRIVIAL"}
         </div>
