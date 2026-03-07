@@ -1,5 +1,7 @@
 import React from 'react';
-import { BookOpen, Info } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
+import 'katex/dist/katex.min.css'; // CRITICAL: This provides the symbols
+import { BlockMath } from 'react-katex';
 
 const TheoryTile = ({ title, physics, formula }) => {
   return (
@@ -18,8 +20,9 @@ const TheoryTile = ({ title, physics, formula }) => {
         
         <div className="flex flex-col justify-center items-center p-4 bg-white/5 rounded border border-white/10">
           <span className="text-xs text-slate-500 uppercase mb-2">Key Relation</span>
-          <div className="text-lg font-mono text-blue-500 dark:text-blue-300">
-            {formula}
+          <div className="text-lg text-blue-500 dark:text-blue-300 w-full overflow-x-auto text-center">
+            {/* WRAP THE FORMULA HERE */}
+            <BlockMath math={formula} />
           </div>
         </div>
       </div>
