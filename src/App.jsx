@@ -1112,9 +1112,9 @@ const SimulationsPage = ({ isDarkMode }) => (
             />
           <SkyrmionTile />
 <TheoryTile 
-    title="Magnetic Skyrmions"
-    physics="Skyrmions are topologically protected spin configurations. Their stability arises from the Dzyaloshinskii-Moriya Interaction (DMI), which favors canted spin orientations over parallel alignment. The topological charge Q represents the number of times the spin vector wraps around a unit sphere."
-    formula="Q = \frac{1}{4\pi} \int \vec{n} \cdot (\partial_x \vec{n} \times \partial_y \vec{n}) dx dy"
+    title="Topological Topography"
+    physics="In this visualization, the vertical axis (height) maps directly to the $S_z$ component of the local magnetic moment. The skyrmion appears as a localized topological soliton where the spins smoothly rotate from 'up' at the boundaries to 'down' at the core center."
+    formula="S_z(\mathbf{r}) = \cos[\Theta(r)], \quad \Theta(r) \approx \pi e^{-r/R}"
 />
           <MajoranaNanowireSim isDarkMode={isDarkMode} />
           <TheoryTile 
